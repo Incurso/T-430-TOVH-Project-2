@@ -1,9 +1,11 @@
 <?php
-/*
+
+/**
  * @file
- * Hello World module file
+ * Hello World module file.
  */
-use \Drupal\Core\Routing\RouteMatchInterface;
+
+use Drupal\Core\Routing\RouteMatchInterface;
 
 /**
  * Implements hook_help().

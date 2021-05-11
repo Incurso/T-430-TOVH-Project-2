@@ -47,7 +47,7 @@ class SalutationConfigurationForm extends ConfigFormBase {
     if(strlen($salutation) > 20) {
       $form_state->setErrorByName('salutation', $this->t('This salutation is to long'));
     }
-    
+
     parent::validateForm($form, $form_state);
   }
 
