@@ -1,4 +1,5 @@
-# T-430-TOVH-Project-1
+# T-430-TOVH-Project-2
+Music Search Module
 
 # To start project run
 composer install
