@@ -1,4 +1,4 @@
-name: project1
+name: project2
 type: drupal9
 docroot: web
 php_version: "7.4"
