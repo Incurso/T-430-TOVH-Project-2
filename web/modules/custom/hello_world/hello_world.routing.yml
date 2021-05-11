@@ -7,8 +7,8 @@ hello_world.hello:
     _permission: 'access content'
 hello_world.greeting_form:
   path: '/admin/config/salutation-configuration'
-    defaults:
-      _form: Drupal\hello_world\Form\SalutationConfigurationForm
-      _title: 'Salutation configuration'
-    requirements:
-      _permission: 'administer site configuration'
+  defaults:
+    _form: Drupal\hello_world\Form\SalutationConfigurationForm
+    _title: 'Salutation configuration'
+  requirements:
+    _permission: 'administer site configuration'
