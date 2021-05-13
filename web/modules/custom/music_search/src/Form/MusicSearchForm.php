@@ -2,13 +2,14 @@
 
 namespace Drupal\music_search\Form;
 
-use Drupal\Core\Form\ConfigFormBase;
+use Drupal\Core\Url;
+use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 
 /**
  * search form for the main music search
  */
-class MusicSearchForm extends ConfigFormBase {
+class MusicSearchForm extends FormBase {
   /**
    * {@inheritdoc}
    */
@@ -29,23 +30,38 @@ class MusicSearchForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
-    $config = $this->config('music_search.settings');
+    #$config = $this->config('music_search.settings');
+    $query = $this->getRequest()->query->get('q');
+    $types = $this->getRequest()->query->get('types');
 
-    $form['artist_name'] = [
+    $form['#method'] = 'post';
+    $form['#action'] = Url::fromRoute('music_search.search')->toString();
+
+    $form['q'] = [
       '#type' => 'textfield',
-      '#title' => $this->t('Artist'),
+      '#title' => $this->t('Search'),
       '#description' => $this->t('Please provide the artist name'),
-      '#default_value' => $config->get('artist_name')
+      '#default_value' => $query ? $query : 'Metallica'
     ];
 
-    $form['album_name'] = [
-      '#type' => 'textfield',
-      '#title' => $this->t('Album'),
-      '#description' => $this->t('Please provide the album name'),
-      '#default_value' => $config->get('album_name')
+    $form['types'] = array(
+      '#type' => 'checkboxes',
+      '#title' => $this->t('Types'),
+      '#options' => array(
+        'album' => $this->t('Albums'),
+        'artist' => $this->t('Artists'),
+        'track' => $this->t('Tracks')
+      ),
+      '#default_value' => $types ? $types : ['artist']
+    );
+
+    $form['actions']['submit'] = [
+      '#type' => 'submit',
+      '#value' => $this->t('Search'),
+      '#name' => ''
     ];
 
-    return parent::buildForm($form, $form_state);
+    return $form; # parent::buildForm($form, $form_state);
   }
 
   /**
@@ -64,11 +80,13 @@ class MusicSearchForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
+    /*
     $this->config('music_search.settings')
       ->set('artist_name', $form_state->getValue('artist_name'))
       ->set('album_name', $form_state->getValue('album_name'))
       ->save();
+    */
 
-    parent::submitForm($form, $form_state);
+    # parent::submitForm($form, $form_state);
   }
 }
