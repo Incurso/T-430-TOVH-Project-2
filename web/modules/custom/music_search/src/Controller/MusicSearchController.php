@@ -59,9 +59,24 @@ class MusicSearchController extends ControllerBase
   public function musicSearch()
   {
     return [
-      '#markup' => $this->searchForm->buildForm(),
-      '#markup' => $this->service->getSalutation(),
+      '#markup' => $this->service->search('Metallica', 'artist'),
     ];
+    /*
+    return [
+      '#theme' => 'item_list',
+      '#list_type' => 'ul',
+      '#items' => $this->service->getSalutation()
+    ];
+    */
+    /*
+    return [
+      '#theme' => array('container'),
+      '#attributes' => [
+        'class' => ['more-link'],
+      ],
+      '#children' => $this->service->getSalutation()
+    ];
+    */
   }
 
 }
