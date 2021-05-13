@@ -145,6 +145,7 @@ class MusicSearchController extends ControllerBase
       '#theme' => array('container'),
       '#attributes' => [],
       '#children' => array(
+        \Drupal::formbuilder()->getForm($this->searchForm),
         $artists,
         $albums,
         $tracks
