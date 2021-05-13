@@ -3,6 +3,7 @@
 
 namespace Drupal\music_search\Controller;
 
+use Drupal\Core\File;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\music_search\Form\MusicSearchForm;
 use Drupal\music_search\MusicSearchService;
@@ -53,33 +54,101 @@ class MusicSearchController extends ControllerBase
   }
 
   /**
-   * Music Search.
-   *
+   * @param string $query
+   * @param string[] $types
    * @return array
-   *   Our message.
    */
-  public function musicSearch()
-  {
-    return [
-      '#markup' => $this->searchForm->buildForm(),
-      '#markup' => $this->service->search('Metallica', 'artist'),
-    ];
-    /*
-    return [
-      '#theme' => 'item_list',
-      '#list_type' => 'ul',
-      '#items' => $this->service->getSalutation()
-    ];
-    */
-    /*
+  public function musicSearch($query = 'Metallica', $types=['album', 'artist', 'track']) {
+    $albums = null;
+    $artists = null;
+    $tracks = null;
+
+    $search_results = $this->service->search($query, implode(',', $types));
+
+    if (in_array('artist', $types)) {
+      $artists = array(
+        '#theme' => 'table',
+        '#caption' => 'Artists',
+        '#header' => [
+          [],
+          ['data' => t('Artist')],
+          []
+        ],
+        '#rows' => array()
+      );
+      foreach ($search_results['artists']['items'] as $item) {
+        $id = $item['id'];
+        $name = $item['name'];
+        $image_url = $item['images'] ? array_pop($item['images'])['url'] : null;
+
+        array_push($artists['#rows'], array(
+          ['data' => ['#theme' => 'image', '#width' => 150, '#alt' => $image_url, '#uri' => $image_url]],
+          ['data' => $name],
+          ['data' => ['#markup' => '<a href="#'. $id .'">'. t('Add') .'</a>']]
+        ));
+      }
+    }
+
+    if (in_array('album', $types)) {
+      $albums = array(
+        '#theme' => 'table',
+        '#caption' => 'Albums',
+        '#header' => [
+          [],
+          ['data' => t('Album')],
+          ['data' => t('Release date')],
+          []
+        ],
+        '#rows' => array()
+      );
+      foreach ($search_results['albums']['items'] as $item) {
+        $id = $item['id'];
+        $name = $item['name'];
+        $image_url = $item['images'] ? array_pop($item['images'])['url'] : '';
+
+        array_push($albums['#rows'], array(
+          ['data' => ['#theme' => 'image', '#width' => 150, '#alt' => $image_url, '#uri' => $image_url]],
+          ['data' => $name],
+          ['data' => $item['release_date']],
+          ['data' => ['#markup' => '<a href="#' . $id . '">' . t('Add') . '</a>']]
+        ));
+      }
+    }
+
+    if (in_array('track', $types)) {
+      $tracks = array(
+        '#theme' => 'table',
+        '#caption' => 'Tracks',
+        '#header' => [
+          ['data' => t('#')],
+          ['data' => t('Album')],
+          ['data' => t('Name')],
+          []
+        ],
+        '#rows' => array()
+      );
+      foreach ($search_results['tracks']['items'] as $item) {
+        $id = $item['id'];
+        $name = $item['name'];
+        #$image_url = $item['images'] ? array_pop($item['images'])['url'] : '';
+
+        array_push($tracks['#rows'], array(
+          ['data' => $item['track_number']],
+          ['data' => $item['album']['name']],
+          ['data' => $name],
+          ['data' => ['#markup' => '<a href="#' . $id . '">' . t('Add') . '</a>']]
+        ));
+      }
+    }
+
     return [
       '#theme' => array('container'),
-      '#attributes' => [
-        'class' => ['more-link'],
-      ],
-      '#children' => $this->service->getSalutation()
+      '#attributes' => [],
+      '#children' => array(
+        $artists,
+        $albums,
+        $tracks
+      )
     ];
-    */
   }
-
 }

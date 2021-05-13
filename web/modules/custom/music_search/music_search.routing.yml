@@ -1,5 +1,5 @@
 music_search.search:
-  path: "/search"
+  path: "/music_search"
   defaults:
     _form: Drupal\music_search\Form\MusicSearchForm
     _controller: Drupal\music_search\Controller\MusicSearchController::musicSearch
