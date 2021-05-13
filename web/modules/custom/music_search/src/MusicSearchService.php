@@ -128,7 +128,6 @@ class MusicSearchService {
       return $response->getBody();
     }
 
-    return $response->getBody();
     return \json_decode($response->getBody(), true);
   }
 
