@@ -26,6 +26,8 @@ class MusicSearchService {
    */
   protected $eventDispatcher;
 
+  protected $session;
+
   /**
    * MusicSearchService constructor.
    *
@@ -35,6 +37,8 @@ class MusicSearchService {
    *   The event dispatcher.
    */
   public function __construct(ConfigFactoryInterface $config_factory) {
+    $requests = \Drupal::request();
+    $this->session = $requests->getSession();
     $this->configFactory = $config_factory;
   }
 
@@ -42,9 +46,10 @@ class MusicSearchService {
    * Returns access token
    */
   private function login() {
-    $request = \Drupal::request();
-    $session = $request->getSession();
-    $access_token = $session->get('spotify_access_token');
+    #$request = \Drupal::request();
+    #$session = $request->getSession();
+    #$access_token = $session->get('spotify_access_token');
+    $access_token = $this->session->get('spotify_access_token');
     $config = $this->configFactory->get('music_search.settings');
     $client_id = $config->get('spotify_client_id');
     $client_secret = $config->get('spotify_client_secret');
@@ -72,16 +77,16 @@ class MusicSearchService {
     # Add issued_at to simplify expiration checks
     $access_token['issued_at'] = $date->getTimestamp();
     # Store access token in session
-    $session->set('spotify_access_token', $access_token);
+    $this->session->set('spotify_access_token', $access_token);
   }
 
   /**
    * Returns boolean if token is expired or not
    */
   private function token_expired() {
-    $request = \Drupal::request();
-    $session = $request->getSession();
-    $access_token = $session->get('spotify_access_token');
+    #$request = \Drupal::request();
+    #$session = $request->getSession();
+    $access_token = $this->session->get('spotify_access_token');
     $date = new \DateTime();
 
     return (
@@ -92,20 +97,71 @@ class MusicSearchService {
   }
 
   /**
+   * @param $uri
+   * @param $query_params
+   * @return mixed|\Psr\Http\Message\StreamInterface
+   */
+  private function query_api($uri, $query_params) {
+    if ($this->token_expired()) {
+      $this->login();
+    }
+
+    $token = $this->session->get('spotify_access_token');
+
+    $options = array(
+      'headers' => array(
+        'Accept' => 'application/json',
+        'Authorization' => $token['token_type'] .' '. $token['access_token']
+      ),
+      'query' => $query_params
+    );
+
+    $response = \Drupal::httpClient()->get($uri, $options);
+
+    if ($response->getStatusCode() !== 200) {
+      $message = 'Status: '. $response->getStatusCode();
+      $message .= ' Reason: '. $response->getReasonPhrase();
+      $message .= ' Message: '. $response->getBody();
+
+      \Drupal::messenger()->addError($message);
+
+      return $response->getBody();
+    }
+
+    return $response->getBody();
+    return \json_decode($response->getBody(), true);
+  }
+
+  /**
+   * @param $query
+   * @param $types
+   * @return mixed|\Psr\Http\Message\StreamInterface
+   */
+  public function search($query, $types) {
+    $uri = 'https://api.spotify.com/v1/search';
+    $query_params = array(
+      'q' => $query,
+      'type' => $types
+    );
+
+    return $this->query_api($uri, $query_params);
+  }
+
+  /**
    * Returns the salutation.
    *
    * @return \Drupal\Core\StringTranslation\TranslatableMarkup
    *   The salutation message.
    */
   public function getSalutation() {
-    $request = \Drupal::request();
-    $session = $request->getSession();
-    $access_token = $session->get('spotify_access_token');
+    #$request = \Drupal::request();
+    #$session = $request->getSession();
+    $access_token = $this->session->get('spotify_access_token');
     #$session->set('spotify_access_token', '');
 
     if ($this->token_expired()) {
       $this->login();
-      $access_token = $session->get('spotify_access_token');
+      $access_token = $this->session->get('spotify_access_token');
     }
 
     $options = array(
@@ -122,7 +178,10 @@ class MusicSearchService {
     $uri = 'https://api.spotify.com/v1/search';
     $response = \Drupal::httpClient()->get($uri, $options);
 
-    return (string) $response->getBody();
+    $test = json_decode($response->getBody()->getContents(), true);
+
+    \Drupal::messenger()->addError($response->getReasonPhrase());
+    return $response->getBody();
 
     #return var_dump($access_token);
     return implode('|', $access_token) .'|'. $date->getTimestamp() .'|'. ($access_token['issued_at'] + 300);
