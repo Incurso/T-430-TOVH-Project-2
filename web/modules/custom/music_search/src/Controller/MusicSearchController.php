@@ -42,12 +42,11 @@ class MusicSearchController extends ControllerBase
   }
 
   /**
-   * Music Search.
-   *
+   * @param string $query
+   * @param string[] $types
    * @return array
-   *   Our message.
    */
-  public function musicSearch($query = 'Linkin Park', $types=['album', 'artist', 'track']) {
+  public function musicSearch($query = 'Metallica', $types=['album', 'artist', 'track']) {
     $albums = null;
     $artists = null;
     $tracks = null;
@@ -60,7 +59,7 @@ class MusicSearchController extends ControllerBase
         '#caption' => 'Artists',
         '#header' => [
           [],
-          ['data' => t('Name')],
+          ['data' => t('Artist')],
           []
         ],
         '#rows' => array()
@@ -68,7 +67,7 @@ class MusicSearchController extends ControllerBase
       foreach ($search_results['artists']['items'] as $item) {
         $id = $item['id'];
         $name = $item['name'];
-        $image_url = $item['images'] ? array_pop($item['images'])['url'] : '';
+        $image_url = $item['images'] ? array_pop($item['images'])['url'] : null;
 
         array_push($artists['#rows'], array(
           ['data' => ['#theme' => 'image', '#width' => 150, '#alt' => $image_url, '#uri' => $image_url]],

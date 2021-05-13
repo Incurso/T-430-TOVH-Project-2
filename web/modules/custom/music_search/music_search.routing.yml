@@ -1,8 +1,8 @@
 music_search.search:
-  path: '/search'
+  path: '/music_search'
   defaults:
     _controller: Drupal\music_search\Controller\MusicSearchController::musicSearch
-    _title: 'Our first route'
+    _title: 'Music Search'
   requirements:
     _permission: 'access content'
 music_search.configuration_form:
