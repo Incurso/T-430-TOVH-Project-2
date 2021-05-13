@@ -26,6 +26,10 @@ class MusicSearchService {
    */
   protected $eventDispatcher;
 
+  /**
+   * The session variable to keep the api tokens from music apis intact and refresh them when they've expired.
+   * 
+   */
   protected $session;
 
   /**

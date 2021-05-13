@@ -36,8 +36,9 @@ class MusicSearchController extends ControllerBase
    * @param \Drupal\music_search\Form\MusicSearchForm $searchForm
    * the search form
    */
-  public function __construct(MusicSearchService $service) {
+  public function __construct(MusicSearchService $service, MusicSearchForm $searchForm) {
     $this->service = $service;
+    $this->searchForm = $searchForm;
   }
 
   /**
@@ -46,7 +47,8 @@ class MusicSearchController extends ControllerBase
   public static function create(ContainerInterface $container)
   {
     return new static(
-      $container->get('music_search.service')
+      $container->get('music_search.service'),
+      $container->get('music_search.form')
     );
   }
 
@@ -59,6 +61,7 @@ class MusicSearchController extends ControllerBase
   public function musicSearch()
   {
     return [
+      '#markup' => $this->searchForm->buildForm(),
       '#markup' => $this->service->search('Metallica', 'artist'),
     ];
     /*

@@ -14,7 +14,7 @@ class MusicSearchConfigurationForm extends ConfigFormBase {
    */
   protected function getEditableConfigNames() {
     return [
-      'music_search.settings',
+      'music_search_configuration.settings',
     ];
   }
 
@@ -29,7 +29,7 @@ class MusicSearchConfigurationForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
-    $config = $this->config('music_search.settings');
+    $config = $this->config('music_search_configuration.settings');
 
     $form['spotify_client_id'] = [
       '#type' => 'textfield',
@@ -64,7 +64,7 @@ class MusicSearchConfigurationForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-    $this->config('music_search.settings')
+    $this->config('music_search_configuration.settings')
       ->set('spotify_client_id', $form_state->getValue('spotify_client_id'))
       ->set('spotify_client_secret', $form_state->getValue('spotify_client_secret'))
       ->save();
