@@ -30,9 +30,11 @@ class MusicSearchForm extends FormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
-    #$config = $this->config('music_search.settings');
-    $query = $this->getRequest()->query->get('q');
-    $types = $this->getRequest()->query->get('types');
+    $request = \Drupal::request();
+    $session = $request->getSession();
+
+    $query = $session->get('search_query');
+    $types = $session->get('search_types');
 
     $form['#method'] = 'post';
     $form['#action'] = Url::fromRoute('music_search.search')->toString();

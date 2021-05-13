@@ -4,6 +4,7 @@
 namespace Drupal\music_search\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
+use Drupal\Core\Url;
 use Drupal\music_search\Form\MusicSearchForm;
 use Drupal\music_search\MusicSearchService;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -26,7 +27,7 @@ class MusicSearchController extends ControllerBase
    * The search form
    * @var \Drupal\music_search\Form\MusicSearchForm
    */
-  protected $searchForm;
+  protected $search_form;
 
   /**
    * MusicSearchController constructor.
@@ -38,7 +39,7 @@ class MusicSearchController extends ControllerBase
    */
   public function __construct(MusicSearchService $service, MusicSearchForm $searchForm) {
     $this->service = $service;
-    $this->searchForm = $searchForm;
+    $this->search_form = $searchForm;
   }
 
   /**
@@ -66,11 +67,14 @@ class MusicSearchController extends ControllerBase
     $artists = null;
     $tracks = null;
 
-    if ($request->request->all()) {
-      $query = \Drupal::request()->request->get('q');
-      $types = \Drupal::request()->request->get('types');
+    $query = $session->get('search_query');
+    $types = $session->get('search_types');
 
-      $request = \Drupal::request();
+    if ($request->getMethod() == 'POST') {
+      $session->set('search_query', $request->request->get('q'));
+      $session->set('search_types', $request->request->get('types'));
+    } else if ($query && $types) {
+      $uri = Url::fromRoute('music_search.search')->toString();
       $search_results = $this->service->search($query, implode(',', $types));
 
       if (in_array('artist', $types)) {
@@ -92,7 +96,7 @@ class MusicSearchController extends ControllerBase
           array_push($artists['#rows'], array(
             ['data' => ['#theme' => 'image', '#width' => 150, '#alt' => $image_url, '#uri' => $image_url]],
             ['data' => $name],
-            ['data' => ['#markup' => '<a href="#' . $id . '">' . t('Add') . '</a>']]
+            ['data' => ['#markup' => '<a href="'. $uri .'/artist/?id='. $id . '">' . t('Add') . '</a>']]
           ));
         }
       }
@@ -118,7 +122,7 @@ class MusicSearchController extends ControllerBase
             ['data' => ['#theme' => 'image', '#width' => 150, '#alt' => $image_url, '#uri' => $image_url]],
             ['data' => $name],
             ['data' => $item['release_date']],
-            ['data' => ['#markup' => '<a href="#' . $id . '">' . t('Add') . '</a>']]
+            ['data' => ['#markup' => '<a href="'. $uri .'/album/?id='. $id . '">' . t('Add') . '</a>']]
           ));
         }
       }
@@ -136,7 +140,7 @@ class MusicSearchController extends ControllerBase
           '#rows' => array()
         );
         foreach ($search_results['tracks']['items'] as $item) {
-          $id = $item['id'];
+          $id = $item['album']['id'];
           $name = $item['name'];
           #$image_url = $item['images'] ? array_pop($item['images'])['url'] : '';
 
@@ -144,17 +148,22 @@ class MusicSearchController extends ControllerBase
             ['data' => $item['track_number']],
             ['data' => $item['album']['name']],
             ['data' => $name],
-            ['data' => ['#markup' => '<a href="#' . $id . '">' . t('Add') . '</a>']]
+            ['data' => ['#markup' => '<a href="'. $uri .'/album/?id='. $id . '">' . t('Add') . '</a>']]
           ));
         }
       }
     }
 
+    $search_form = \Drupal::formbuilder()->getForm($this->search_form);
+
+    $session->remove('search_query');
+    $session->remove('search_types');
+
     return [
       '#theme' => array('container'),
       '#attributes' => [],
       '#children' => array(
-        \Drupal::formbuilder()->getForm($this->searchForm),
+        $search_form,
         $artists,
         $albums,
         $tracks,
