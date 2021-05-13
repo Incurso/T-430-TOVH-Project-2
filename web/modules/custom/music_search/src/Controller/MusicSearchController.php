@@ -4,6 +4,7 @@
 namespace Drupal\music_search\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
+use Drupal\music_search\Form\MusicSearchForm;
 use Drupal\music_search\MusicSearchService;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -20,11 +21,20 @@ class MusicSearchController extends ControllerBase
    */
   protected $service;
 
+
+  /**
+   * The search form
+   * @var \Drupal\music_search\Form\MusicSearchForm
+   */
+  protected $searchForm;
+
   /**
    * MusicSearchController constructor.
    *
    * @param \Drupal\music_search\MusicSearchService $service
-   *   The salutation service.
+   * The search service.
+   * @param \Drupal\music_search\Form\MusicSearchForm $searchForm
+   * the search form
    */
   public function __construct(MusicSearchService $service) {
     $this->service = $service;
@@ -49,6 +59,7 @@ class MusicSearchController extends ControllerBase
   public function musicSearch()
   {
     return [
+      '#markup' => $this->searchForm->buildForm(),
       '#markup' => $this->service->getSalutation(),
     ];
   }

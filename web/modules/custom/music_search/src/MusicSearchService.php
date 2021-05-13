@@ -122,7 +122,7 @@ class MusicSearchService {
     $uri = 'https://api.spotify.com/v1/search';
     $response = \Drupal::httpClient()->get($uri, $options);
 
-    return (string) $response->getBody();
+    return (string) $response->getBody(array("albums" => "albums"));
 
     #return var_dump($access_token);
     return implode('|', $access_token) .'|'. $date->getTimestamp() .'|'. ($access_token['issued_at'] + 300);
