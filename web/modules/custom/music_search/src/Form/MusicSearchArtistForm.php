@@ -52,11 +52,11 @@ class MusicSearchArtistForm extends FormBase {
     $form['#method'] = 'post';
     $form['#action'] = Url::fromRoute('music_search.search')->toString();
 
-    $form['q'] = [
+    $form['title'] = [
       '#type' => 'textfield',
-      '#title' => $this->t('Search'),
+      '#title' => $this->t('Name'),
       '#description' => $this->t('Please provide the artist name'),
-      '#default_value' => $query ? $query : 'Metallica'
+      '#default_value' => $artist['name']
     ];
 
     $form['types'] = array(
