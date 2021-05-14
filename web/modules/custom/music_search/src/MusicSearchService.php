@@ -28,7 +28,7 @@ class MusicSearchService {
 
   /**
    * The session variable to keep the api tokens from music apis intact and refresh them when they've expired.
-   * 
+   *
    */
   protected $session;
 
@@ -105,7 +105,7 @@ class MusicSearchService {
    * @param $query_params
    * @return mixed|\Psr\Http\Message\StreamInterface
    */
-  private function query_api($uri, $query_params) {
+  private function query_api($uri, $query_params = null) {
     if ($this->token_expired()) {
       $this->login();
     }
@@ -148,6 +148,12 @@ class MusicSearchService {
     );
 
     return $this->query_api($uri, $query_params);
+  }
+
+  public function getArtist($id) {
+    $uri = 'https://api.spotify.com/v1/artists/'. $id;
+
+    return $this->query_api($uri);
   }
 
   /**

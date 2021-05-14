@@ -2,6 +2,9 @@ services:
   music_search.service:
     class: Drupal\music_search\MusicSearchService
     arguments: ["@config.factory"]
+  music_search.artist:
+    class: Drupal\music_search\Form\MusicSearchArtistForm
+    arguments: ["@config.factory"]
   music_search.form:
     class: Drupal\music_search\Form\MusicSearchForm
     arguments: ["@config.factory"]

@@ -58,7 +58,7 @@ class MusicSearchController extends ControllerBase
    * @param string[] $types
    * @return array
    */
-  public function musicSearch(/*$query = 'Metallica', $types=['album', 'artist', 'track']*/)
+  public function musicSearch()
   {
     $request = \Drupal::request();
     $session = $request->getSession();
