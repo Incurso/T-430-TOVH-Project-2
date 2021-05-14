@@ -1,9 +1,14 @@
 music_search.search:
   route_name: music_search.search
-  title: 'Music Search'
+  title: "Music Search"
   base_route: music_search.search
 music_search.configuration_form:
   route_name: music_search.configuration_form
-  title: 'Configuration'
+  title: "Configuration"
   base_route: music_search.search
+  weight: 100
+discogs_search.configuration_form:
+  route_name: discogs_search.configuration_form
+  title: "Configuration"
+  base_route: discogs_search.search
   weight: 100

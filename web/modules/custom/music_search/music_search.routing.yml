@@ -12,6 +12,21 @@ music_search.artist:
     _title: "Music Search Artist"
   requirements:
     _permission: "access content"
+music_search.album:
+  path: "/music_search/album"
+  defaults:
+    _form: Drupal\music_search\Form\MusicSearchAlbumForm
+    _title: "Music Search Album"
+  requirements:
+    _permission: "access content"
+music_search.song:
+  path: "/music_search/song"
+  defaults:
+    _form: Drupal\music_search\Form\MusicSearchSongForm
+    _title: "Music Search Songs"
+  requirements:
+    _permission: "access content"
+
 music_search.form:
   path: "/music_search_form"
   defaults:
@@ -24,5 +39,12 @@ music_search.configuration_form:
   defaults:
     _form: Drupal\music_search\Form\MusicSearchConfigurationForm
     _title: "Music Search configuration"
+  requirements:
+    _permission: "administer site configuration"
+discogs_search.configuration_form:
+  path: "/admin/config/discogs-search-configuration"
+  defaults:
+    _form: Drupal\music_search\Form\DiscogsSearchConfigurationForm
+    _title: "Discogs Search configuration"
   requirements:
     _permission: "administer site configuration"

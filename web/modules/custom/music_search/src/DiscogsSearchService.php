@@ -8,7 +8,7 @@ use Drupal\Core\StringTranslation\StringTranslationTrait;
 /**
  * Prepares the salutation to the world.
  */
-class MusicSearchSpotifyService {
+class DiscogsSearchService {
 
   use StringTranslationTrait;
 
@@ -28,7 +28,7 @@ class MusicSearchSpotifyService {
 
   /**
    * The session variable to keep the api tokens from music apis intact and refresh them when they've expired.
-   *
+   * 
    */
   protected $session;
 
@@ -53,10 +53,10 @@ class MusicSearchSpotifyService {
     #$request = \Drupal::request();
     #$session = $request->getSession();
     #$access_token = $session->get('spotify_access_token');
-    $access_token = $this->session->get('spotify_access_token');
-    $config = $this->configFactory->get('music_search.settings');
-    $client_id = $config->get('spotify_client_id');
-    $client_secret = $config->get('spotify_client_secret');
+    $access_token = $this->session->get('discogs_access_token');
+    $config = $this->configFactory->get('discogs_search.settings');
+    $client_id = $config->get('discogs_client_id');
+    $client_secret = $config->get('discogs_client_secret');
     $date = new \DateTime();
 
     $options = array(
@@ -70,7 +70,7 @@ class MusicSearchSpotifyService {
       )
     );
 
-    $uri = 'https://accounts.spotify.com/api/token';
+    $uri = 'https://api.discogs.com/oauth/request_token';
 
     # TODO: Attempt login
     # Authenticate against Spotify
@@ -81,7 +81,7 @@ class MusicSearchSpotifyService {
     # Add issued_at to simplify expiration checks
     $access_token['issued_at'] = $date->getTimestamp();
     # Store access token in session
-    $this->session->set('spotify_access_token', $access_token);
+    $this->session->set('discogs_access_token', $access_token);
   }
 
   /**
@@ -90,7 +90,7 @@ class MusicSearchSpotifyService {
   private function token_expired() {
     #$request = \Drupal::request();
     #$session = $request->getSession();
-    $access_token = $this->session->get('spotify_access_token');
+    $access_token = $this->session->get('discogs_access_token');
     $date = new \DateTime();
 
     return (
@@ -105,12 +105,12 @@ class MusicSearchSpotifyService {
    * @param $query_params
    * @return mixed|\Psr\Http\Message\StreamInterface
    */
-  private function query_api($uri, $query_params = null) {
+  private function query_api($uri, $query_params) {
     if ($this->token_expired()) {
       $this->login();
     }
 
-    $token = $this->session->get('spotify_access_token');
+    $token = $this->session->get('discogs_access_token');
 
     $options = array(
       'headers' => array(
@@ -141,54 +141,71 @@ class MusicSearchSpotifyService {
    * @return mixed|\Psr\Http\Message\StreamInterface
    */
   public function search($query, $types) {
-    $uri = 'https://api.spotify.com/v1/search';
+    $uri = 'https://api.discogs.com/database/search';
     $query_params = array(
       'q' => $query,
       'type' => $types
     );
 
-    $returnData = array();
+    return $this->query_api($uri, $query_params);
+  }
 
-    $response = $this->query_api($uri, $query_params);
 
-    foreach ($response as $typeKey => $typeValue) {
-      if (!array_key_exists($typeKey, $returnData)) {
-        $returnData[$typeKey] = array();
-      }
 
-      foreach ($typeValue['items'] as $item) {
-        switch ($typeKey) {
-          case 'albums':
-            array_push($returnData[$typeKey], array(
-              'id' => $item['id'],
-              'title' => $item['name'],
-              'year' => $item['release_date'],
-              'thumbnail' => $item['images'] ? $item['images'][0]['url'] : '',
-            ));
-            break;
-          case 'artists':
-            array_push($returnData[$typeKey], array(
-              'id' => $item['id'],
-              'title' => $item['name'],
-              'thumbnail' => $item['images'] ? $item['images'][0]['url'] : '',
-            ));
-            break;
-        }
-      }
+
+
+
+  //obsolete, use for tests
+
+  /**
+   * Returns the salutation.
+   *
+   * @return \Drupal\Core\StringTranslation\TranslatableMarkup
+   *   The salutation message.
+   */
+  public function getSalutation() {
+    #$request = \Drupal::request();
+    #$session = $request->getSession();
+    $access_token = $this->session->get('discogs_access_token');
+    #$session->set('discogs_access_token', '');
+
+    if ($this->token_expired()) {
+      $this->login();
+      $access_token = $this->session->get('discogs_access_token');
     }
 
-    return $returnData;
+    $options = array(
+      'headers' => array(
+        'Accept' => 'application/json',
+        'Authorization' => $access_token['token_type'] .' '. $access_token['access_token']
+      ),
+      'query' => array(
+        'q' => 'Metallica',
+        'type' => 'album,artist'
+      )
+    );
+
+    $uri = 'https://api.discogs.com/database/search';
+    $response = \Drupal::httpClient()->get($uri, $options);
+
+    $test = json_decode($response->getBody()->getContents(), true);
+
+    \Drupal::messenger()->addError($response->getReasonPhrase());
+    return $response->getBody();
+
+    #return var_dump($access_token);
+    return implode('|', $access_token) .'|'. $date->getTimestamp() .'|'. ($access_token['issued_at'] + 300);
+    #return $access_token->get('access_token');
+
+    #$response = \Drupal::httpClient()->post($uri, $options);
+    $data = $response->getBody()->getContents();
+
+    #$uri = 'http://api.spotify.com/search?q=artist:Metallica';
+    #$response = \Drupal::httpClient()->get($uri, array('headers' => array('Accept' => 'application/json')));
+    #$data = (string) $response->getBody();
+
+    return $data;
+  
   }
 
-  public function getArtist($id) {
-    $uri = 'https://api.spotify.com/v1/artists/'. $id;
-
-    return $this->query_api($uri);
-  }
-
-  public function getAlbum($id) {
-    $uri = 'https://api.spotify.com/v1/albums/'. $id;
-
-    return $this->query_api($uri);
-  }
 }

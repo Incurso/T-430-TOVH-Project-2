@@ -84,53 +84,47 @@ class MusicSearchDiscogsService {
    * @param $types
    * @return mixed|\Psr\Http\Message\StreamInterface
    */
-  public function search($query, $types) {
+  public function search($query, $searchType) {
     $uri = 'https://api.discogs.com/database/search';
     $returnData = array();
 
-    foreach ($types as $searchType) {
-      $type = null;
-      $response = null;
+    $type = null;
+    $response = null;
 
-      switch ($searchType) {
-        case 'album':
-          $type = 'albums';
-          $response = $this->query_api($uri, array('q' => $query, 'type' => 'master', 'format' => 'album'));
+    switch ($searchType) {
+      case 'album':
+        $type = 'albums';
+        $response = $this->query_api($uri, array('q' => $query, 'type' => 'master', 'format' => 'album'));
+        break;
+      case 'artist':
+        $type = 'artists';
+        $response = $this->query_api($uri, array('q' => $query, 'type' => 'artist'));
+        break;
+    }
+
+    if (!array_key_exists($type, $returnData)) {
+      $returnData[$type] = array();
+    }
+
+    foreach ($response['results'] as $item) {
+      switch ($type) {
+        case 'albums':
+          array_push($returnData[$type], array(
+            'id' => $item['id'],
+            'title' => $item['title'],
+            'year' => array_key_exists('year', $item) ? $item['year'] : '',
+            'thumbnail' => $item['thumb']
+          ));
           break;
-        case 'artist':
-          $type = 'artists';
-          $response = $this->query_api($uri, array('q' => $query, 'type' => 'artist'));
+        case 'artists':
+          array_push($returnData[$type], array(
+            'id' => $item['id'],
+            'title' => $item['title'],
+            'thumbnail' => $item['thumb']
+          ));
           break;
       }
-
-      if (!$response) {
-        continue;
-      }
-
-      if (!array_key_exists($type, $returnData)) {
-        $returnData[$type] = array();
-      }
-
-      foreach ($response['results'] as $item) {
-        switch ($type) {
-          case 'albums':
-            array_push($returnData[$type], array(
-              'id' => $item['id'],
-              'title' => $item['title'],
-              'year' => array_key_exists('year', $item) ? $item['year'] : '',
-              'thumbnail' => $item['thumb']
-            ));
-            break;
-          case 'artists':
-            array_push($returnData[$type], array(
-              'id' => $item['id'],
-              'title' => $item['title'],
-              'thumbnail' => $item['thumb']
-            ));
-            break;
-        }
-      }
-    };
+    }
 
     return $returnData;
   }
