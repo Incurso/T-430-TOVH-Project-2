@@ -37,7 +37,7 @@ class MusicSearchForm extends FormBase {
     $types = $session->get('search_types');
 
     $form['#method'] = 'post';
-    $form['#action'] = Url::fromRoute('music_search.search')->toString();
+    //$form['#action'] = Url::fromRoute('music_search.search')->toString();
 
     $form['q'] = [
       '#type' => 'textfield',
@@ -47,14 +47,13 @@ class MusicSearchForm extends FormBase {
     ];
 
     $form['types'] = array(
-      '#type' => 'checkboxes',
+      '#type' => 'radios',
       '#title' => $this->t('Types'),
       '#options' => array(
         'album' => $this->t('Albums'),
-        'artist' => $this->t('Artists'),
-        'track' => $this->t('Tracks')
+        'artist' => $this->t('Artist'),
       ),
-      '#default_value' => $types ? $types : ['artist']
+      '#default_value' => $types ? $types : 'artist'
     );
 
     $form['actions']['submit'] = [

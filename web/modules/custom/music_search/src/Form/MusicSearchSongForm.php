@@ -11,9 +11,9 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 /**
  * search form for the main music search
  */
-class MusicSearchArtistForm extends FormBase {
+class MusicSearchSongForm extends FormBase {
   /**
-   * The Music Artist Service
+   * The Music Search Song Service
    *
    * @var \Drupal\music_search\MusicSearchService
    */
@@ -44,7 +44,10 @@ class MusicSearchArtistForm extends FormBase {
     $session = $request->getSession();
     $id = $request->query->get('id');
 
-    $artist = $this->service->getArtist($id);
+    /**
+     * Get songs from the web api (discogs or spotify)
+     */
+    $song = $this->service->getAlbum($id);
 
     $query = $session->get('search_query');
     $types = $session->get('search_types');
@@ -55,29 +58,29 @@ class MusicSearchArtistForm extends FormBase {
     $form['title'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Name'),
-      '#description' => $this->t('Please provide the artist name'),
-      '#default_value' => $artist['name']
+      '#description' => $this->t('Please provide the song name'),
+      '#default_value' => $song['name']
     ];
 
     $form['id'] = [
       '#type' => 'textfield',
       '#title' => $this->t('spotify_id'),
       '#description' => $this->t('Please provide the spotify id'),
-      '#default_value' => $artist['id']
+      '#default_value' => $song['id']
     ];
 
     $photo[] = $this->service->_save_file(
-      $artist['images'][0],
+      $song['images'][0],
       'artist_images',
       'image',
-      $artist['name'] . ' - photo',
-      $artist['name'] . '_band_photo.jpg'
+      $song['name'] . ' - photo',
+      $song['name'] . '_album_photo.jpg'
     );
 
 
     $form['images'] = array(
       '#type' => 'checkbox',
-      '#title' => '<img src="' . $artist['images'][1]['url'] .'">',
+      '#title' => '<img src="' . $song['images'][1]['url'] .'">',
       '#description' => $this->t('Do you want to add the image'),
     );
 
@@ -95,9 +98,9 @@ class MusicSearchArtistForm extends FormBase {
    * {@inheritdoc}
    */
   public function validateForm(array &$form, FormStateInterface $form_state) {
-    $client_id = $form_state->getValue('artist_name');
+    $client_id = $form_state->getValue('song_name');
     if(strlen($client_id) > 32) {
-      $form_state->setErrorByName('artist_name', $this->t('The artist name is to long'));
+      $form_state->setErrorByName('song_name', $this->t('The song name is to long'));
     }
 
     parent::validateForm($form, $form_state);
@@ -111,25 +114,27 @@ class MusicSearchArtistForm extends FormBase {
     $request = \Drupal::request();
     $id = $request->query->get('id');
 
-    $artist = $this->service->getArtist($id);
+    $song = $this->service->getArtist($id);
 
     $test = \Drupal::entityTypeManager()->getStorage('node')->getQuery();
     $test
       ->condition('type', 'artist')
-      ->condition('title', $artist['name'])
+      ->condition('title', $song['name'])
       ->condition('status', TRUE);
     $ids = $test->execute();
     $asdf = \Drupal::entityTypeManager()->getStorage('node')->load(array_pop($ids));
 
     $values = [
       'type' => 'artist',
-      'title' => $artist['name'],
+      'title' => $song['name'],
       'status' => TRUE,
     ];
     $node = \Drupal::entityTypeManager()->getStorage('node')->create($values);
     $node->save();
  */
  }
+
+
 
 
 }

@@ -11,9 +11,9 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 /**
  * search form for the main music search
  */
-class MusicSearchArtistForm extends FormBase {
+class MusicSearchAlbumForm extends FormBase {
   /**
-   * The Music Artist Service
+   * The Music Search Album Service
    *
    * @var \Drupal\music_search\MusicSearchService
    */
@@ -33,8 +33,48 @@ class MusicSearchArtistForm extends FormBase {
    * {@inheritdoc}
    */
   public function getFormId() {
-    return 'music_search_artist_form';
+    return 'music_search_album_form';
   }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function addSongsForm(FormStateInterface $form_state) {
+    /**
+     * add songs in add album form
+     */
+    $songs = array(
+      array( 'track_name' => 'Indy', 'track_length' => 'Jones', 'uid' => 1),
+      array( 'track_name' => 'Darth', 'track_length' => 'Vader', 'uid' => 2),
+      array( 'track_name' => 'Super', 'track_length' => 'Man', 'uid' => 3),
+    );
+
+    $header = array(
+      'track_name' => t('track Name'),
+      'track_length' => t('track length'),
+    );
+    $options = array();
+
+    foreach ($songs as $song) {
+      $options[$song['uid']] = array(
+        'track_name' => $song['track_name'],
+        'track_length' => $song['track_length'],
+      );
+    }
+    $form['table'] = array(
+      '#header' => $header,
+      '#empty' => t('No users found'),
+      '#type' => 'tableselect',
+      '#options' => $options,
+    );
+    $form['submit'] = array(
+      '#type' => 'submit',
+      '#value' => t('Add Songs'),
+    );
+
+    return $form;
+  }
+
 
   /**
    * {@inheritdoc}
@@ -44,7 +84,10 @@ class MusicSearchArtistForm extends FormBase {
     $session = $request->getSession();
     $id = $request->query->get('id');
 
-    $artist = $this->service->getArtist($id);
+    /**
+     * Get albums from the web api (discogs or spotify)
+     */
+    $album = $this->service->getAlbum($id);
 
     $query = $session->get('search_query');
     $types = $session->get('search_types');
@@ -55,32 +98,61 @@ class MusicSearchArtistForm extends FormBase {
     $form['title'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Name'),
-      '#description' => $this->t('Please provide the artist name'),
-      '#default_value' => $artist['name']
+      '#description' => $this->t('Please provide the album name'),
+      '#default_value' => $album['name']
     ];
 
-    $form['id'] = [
+    $form['spotifyid'] = [
       '#type' => 'textfield',
       '#title' => $this->t('spotify_id'),
       '#description' => $this->t('Please provide the spotify id'),
-      '#default_value' => $artist['id']
+      '#default_value' => $album['id']
     ];
 
+    $form['discogsid'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('discogs_id'),
+      '#description' => $this->t('Please provide the discogs id'),
+      '#default_value' => $album['id']
+    ];
+
+    $form['genre'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('genre'),
+      '#description' => $this->t('Please provide the genre'),
+      '#default_value' => 'Rock and roll'
+    ];
+
+    $form['releasedate'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('release date'),
+      '#description' => $this->t('Please provide the release date'),
+      '#default_value' => '1991'
+    ];
+
+    $form['label'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('label'),
+      '#description' => $this->t('Please provide the record label'),
+      '#default_value' => 'Elektra'
+    ];
+
+
+/*
     $photo[] = $this->service->_save_file(
-      $artist['images'][0],
+      $album['images'][0],
       'artist_images',
       'image',
-      $artist['name'] . ' - photo',
-      $artist['name'] . '_band_photo.jpg'
+      $album['name'] . ' - photo',
+      $album['name'] . '_album_photo.jpg'
     );
-
+*/
 
     $form['images'] = array(
       '#type' => 'checkbox',
-      '#title' => '<img src="' . $artist['images'][1]['url'] .'">',
+      '#title' => '<img src="' . $album['images'][1]['url'] .'">',
       '#description' => $this->t('Do you want to add the image'),
     );
-
 
     $form['actions']['submit'] = [
       '#type' => 'submit',
@@ -88,7 +160,11 @@ class MusicSearchArtistForm extends FormBase {
       '#name' => ''
     ];
 
-    return $form; # parent::buildForm($form, $form_state);
+
+
+
+
+    return array($form, $this->addSongsForm($form_state)); # parent::buildForm($form, $form_state);
   }
 
   /**
@@ -103,6 +179,8 @@ class MusicSearchArtistForm extends FormBase {
     parent::validateForm($form, $form_state);
   }
 
+
+
   /**
    * {@inheritdoc}
    */
@@ -111,25 +189,27 @@ class MusicSearchArtistForm extends FormBase {
     $request = \Drupal::request();
     $id = $request->query->get('id');
 
-    $artist = $this->service->getArtist($id);
+    $album = $this->service->getArtist($id);
 
     $test = \Drupal::entityTypeManager()->getStorage('node')->getQuery();
     $test
       ->condition('type', 'artist')
-      ->condition('title', $artist['name'])
+      ->condition('title', $album['name'])
       ->condition('status', TRUE);
     $ids = $test->execute();
     $asdf = \Drupal::entityTypeManager()->getStorage('node')->load(array_pop($ids));
 
     $values = [
       'type' => 'artist',
-      'title' => $artist['name'],
+      'title' => $album['name'],
       'status' => TRUE,
     ];
     $node = \Drupal::entityTypeManager()->getStorage('node')->create($values);
     $node->save();
  */
  }
+
+
 
 
 }

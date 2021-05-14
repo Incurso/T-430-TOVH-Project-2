@@ -155,4 +155,10 @@ class MusicSearchSpotifyService {
 
     return $this->query_api($uri);
   }
+
+  public function getAlbum($id) {
+    $uri = 'https://api.spotify.com/v1/albums/'. $id;
+
+    return $this->query_api($uri);
+  }
 }
