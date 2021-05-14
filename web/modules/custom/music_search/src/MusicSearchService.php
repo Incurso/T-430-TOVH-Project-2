@@ -72,7 +72,7 @@ class MusicSearchService {
                 '#theme' => 'table',
                 '#caption' => ucfirst($serviceKey) .' Albums',
                 '#header' => [
-                  [],
+                  ['data' => t('Album Cover')],
                   ['data' => t('Title')],
                   ['data' => t('Release date')],
                   []
@@ -96,7 +96,7 @@ class MusicSearchService {
                 '#theme' => 'table',
                 '#caption' => ucfirst($serviceKey) .' Artists',
                 '#header' => [
-                  [],
+                  ['data' => t('Band photo')],
                   ['data' => t('Title')],
                   []
                 ],

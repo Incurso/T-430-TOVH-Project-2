@@ -37,16 +37,16 @@ class MusicSearchAlbumForm extends FormBase {
   }
 
   /**
-   * {@inheritdoc}
+   * add album attributes in add album form
    */
   public function addSongsForm(FormStateInterface $form_state) {
     /**
      * add songs in add album form
      */
-    $songs = array(
-      array( 'track_name' => 'Indy', 'track_length' => 'Jones', 'uid' => 1),
-      array( 'track_name' => 'Darth', 'track_length' => 'Vader', 'uid' => 2),
-      array( 'track_name' => 'Super', 'track_length' => 'Man', 'uid' => 3),
+    $attributes = array(
+      array( 'track_name' => 'lag1', 'track_length' => '3:54', 'uid' => 1),
+      array( 'track_name' => 'lag2', 'track_length' => '2:22', 'uid' => 2),
+      array( 'track_name' => 'lag3', 'track_length' => '5:30', 'uid' => 3),
     );
 
     $header = array(
@@ -55,13 +55,14 @@ class MusicSearchAlbumForm extends FormBase {
     );
     $options = array();
 
-    foreach ($songs as $song) {
-      $options[$song['uid']] = array(
-        'track_name' => $song['track_name'],
-        'track_length' => $song['track_length'],
+    foreach ($attributes as $attribute) {
+      $options[$attribute['uid']] = array(
+        'track_name' => $attribute['track_name'],
+        'track_length' => $attribute['track_length'],
       );
     }
     $form['table'] = array(
+      '#caption' => $this->t('Available Songs'),
       '#header' => $header,
       '#empty' => t('No users found'),
       '#type' => 'tableselect',
@@ -75,6 +76,43 @@ class MusicSearchAlbumForm extends FormBase {
     return $form;
   }
 
+    /**
+     * add album attributes in add album form
+     */
+  public function addAlbumAttributes(FormStateInterface $formState){
+    $attributes = array(
+      array('name' => 'Genre (spotify)', 'description' => 'Rock', 'uid' => 1),
+      array('name' => 'Label (spotify)', 'description' => 'Elektra', 'uid' => 2),
+      array('name' => 'Label (discogs)', 'description' => 'Virgin', 'uid' => 3),
+      array('name' => 'Release Date', 'description' => '1990-01-01', 'uid' => 4),
+    );
+    $options = array();
+
+    $header = array(
+      'name' => t('name'),
+      'description' => t('description'),
+    );
+
+    foreach ($attributes as $attribute) {
+      $options[$attribute['uid']] = array(
+        'name' => $attribute['name'],
+        'description' => $attribute['description'],
+      );
+    }
+    $form['table'] = array(
+      '#caption' => $this->t('Add items from services'),
+      '#empty' => t('No users found'),
+      '#header' => $header,
+      '#type' => 'tableselect',
+      '#options' => $options,
+    );
+    $form['submit'] = array(
+      '#type' => 'submit',
+      '#value' => t('Add Attributes'),
+    );
+
+    return $form;
+  }
 
   /**
    * {@inheritdoc}
@@ -137,7 +175,6 @@ class MusicSearchAlbumForm extends FormBase {
       '#default_value' => 'Elektra'
     ];
 
-
 /*
     $photo[] = $this->service->_save_file(
       $album['images'][0],
@@ -162,9 +199,11 @@ class MusicSearchAlbumForm extends FormBase {
 
 
 
-
-
-    return array($form, $this->addSongsForm($form_state)); # parent::buildForm($form, $form_state);
+    return [
+      $form,
+      $this->addAlbumAttributes($form_state),
+      $this->addSongsForm($form_state)
+    ]; # parent::buildForm($form, $form_state);
   }
 
   /**
