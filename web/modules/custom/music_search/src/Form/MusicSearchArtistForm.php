@@ -49,8 +49,8 @@ class MusicSearchArtistForm extends FormBase {
     $query = $session->get('search_query');
     $types = $session->get('search_types');
 
-    $form['#method'] = 'post';
-    $form['#action'] = Url::fromRoute('music_search.search')->toString();
+    # $form['#method'] = 'post';
+    # $form['#action'] = Url::fromRoute('music_search.search')->toString();
 
     $form['title'] = [
       '#type' => 'textfield',
@@ -107,7 +107,10 @@ class MusicSearchArtistForm extends FormBase {
       ->condition('title', $artist['name'])
       ->condition('status', TRUE);
     $ids = $test->execute();
-    $asdf = \Drupal::entityTypeManager()->getStorage('node')->load(array_pop($ids));
+
+    if ($ids) {
+      $asdf = \Drupal::entityTypeManager()->getStorage('node')->load(array_pop($ids));
+    }
 
     $values = [
       'type' => 'artist',

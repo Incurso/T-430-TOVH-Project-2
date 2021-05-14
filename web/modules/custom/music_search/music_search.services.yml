@@ -1,7 +1,10 @@
 services:
   music_search.service:
     class: Drupal\music_search\MusicSearchService
-    arguments: ["@config.factory", "@music_search_spotify.service"]
+    arguments: ["@config.factory", "@music_search_discogs.service", "@music_search_spotify.service"]
+  music_search_discogs.service:
+    class: Drupal\music_search\MusicSearchDiscogsService
+    arguments: ["@config.factory"]
   music_search_spotify.service:
     class: Drupal\music_search\MusicSearchSpotifyService
     arguments: ["@config.factory"]

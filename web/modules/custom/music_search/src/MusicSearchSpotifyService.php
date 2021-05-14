@@ -144,10 +144,40 @@ class MusicSearchSpotifyService {
     $uri = 'https://api.spotify.com/v1/search';
     $query_params = array(
       'q' => $query,
-      'type' => $types
+      'type' => implode(',', $types)
     );
 
-    return $this->query_api($uri, $query_params);
+    $returnData = array();
+
+    $response = $this->query_api($uri, $query_params);
+
+    foreach ($response as $typeKey => $typeValue) {
+      if (!array_key_exists($typeKey, $returnData)) {
+        $returnData[$typeKey] = array();
+      }
+
+      foreach ($typeValue['items'] as $item) {
+        switch ($typeKey) {
+          case 'albums':
+            array_push($returnData[$typeKey], array(
+              'id' => $item['id'],
+              'title' => $item['name'],
+              'year' => $item['release_date'],
+              'thumbnail' => $item['images'] ? $item['images'][0]['url'] : '',
+            ));
+            break;
+          case 'artists':
+            array_push($returnData[$typeKey], array(
+              'id' => $item['id'],
+              'title' => $item['name'],
+              'thumbnail' => $item['images'] ? $item['images'][0]['url'] : '',
+            ));
+            break;
+        }
+      }
+    }
+
+    return $returnData;
   }
 
   public function getArtist($id) {

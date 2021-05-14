@@ -31,6 +31,20 @@ class MusicSearchConfigurationForm extends ConfigFormBase {
   public function buildForm(array $form, FormStateInterface $form_state) {
     $config = $this->config('music_search_configuration.settings');
 
+    $form['discogs_consumer_key'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Discogs Consumer Key'),
+      '#description' => $this->t('Please provide the Discogs Consumer key'),
+      '#default_value' => $config->get('discogs_consumer_key')
+    ];
+
+    $form['discogs_consumer_secret'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Discogs Consumer Secret'),
+      '#description' => $this->t('Please provide the Discogs Consumer Secret'),
+      '#default_value' => $config->get('discogs_consumer_secret')
+    ];
+
     $form['spotify_client_id'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Spotify Client ID'),
@@ -65,6 +79,8 @@ class MusicSearchConfigurationForm extends ConfigFormBase {
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $this->config('music_search_configuration.settings')
+      ->set('discogs_consumer_key', $form_state->getValue('discogs_consumer_key'))
+      ->set('discogs_consumer_secret', $form_state->getValue('discogs_consumer_secret'))
       ->set('spotify_client_id', $form_state->getValue('spotify_client_id'))
       ->set('spotify_client_secret', $form_state->getValue('spotify_client_secret'))
       ->save();
