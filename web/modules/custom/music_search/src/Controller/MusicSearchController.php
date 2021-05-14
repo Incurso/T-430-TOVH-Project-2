@@ -16,11 +16,18 @@ class MusicSearchController extends ControllerBase
 {
 
   /**
-   * The salutation service.
+   * SpotifySearchService
    *
    * @var \Drupal\music_search\MusicSearchService
    */
   protected $service;
+
+  /**
+   * discogs search service
+   *
+   * @var \Drupal\music_search\DiscogsSearchService
+   */
+  protected $discogsService;
 
 
   /**
@@ -33,12 +40,15 @@ class MusicSearchController extends ControllerBase
    * MusicSearchController constructor.
    *
    * @param \Drupal\music_search\MusicSearchService $service
-   * The search service.
+   * The spotify search service.
+   * @param \Drupal\music_search\DiscogsSearchService $discogsService
+   * the discogs search service
    * @param \Drupal\music_search\Form\MusicSearchForm $searchForm
    * the search form
    */
   public function __construct(MusicSearchService $service, MusicSearchForm $searchForm) {
     $this->service = $service;
+    //$this->discogsService = $discogsService;
     $this->search_form = $searchForm;
   }
 
@@ -49,6 +59,8 @@ class MusicSearchController extends ControllerBase
   {
     return new static(
       $container->get('music_search.service'),
+      //$container->get('discogs_search.service'),
+      
       $container->get('music_search.form')
     );
   }

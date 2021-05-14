@@ -8,7 +8,7 @@ use Drupal\Core\StringTranslation\StringTranslationTrait;
 /**
  * Prepares the salutation to the world.
  */
-class MusicSearchService {
+class DiscogsSearchService {
 
   use StringTranslationTrait;
 
@@ -53,10 +53,10 @@ class MusicSearchService {
     #$request = \Drupal::request();
     #$session = $request->getSession();
     #$access_token = $session->get('spotify_access_token');
-    $access_token = $this->session->get('spotify_access_token');
-    $config = $this->configFactory->get('music_search.settings');
-    $client_id = $config->get('spotify_client_id');
-    $client_secret = $config->get('spotify_client_secret');
+    $access_token = $this->session->get('discogs_access_token');
+    $config = $this->configFactory->get('discogs_search.settings');
+    $client_id = $config->get('discogs_client_id');
+    $client_secret = $config->get('discogs_client_secret');
     $date = new \DateTime();
 
     $options = array(
@@ -70,7 +70,7 @@ class MusicSearchService {
       )
     );
 
-    $uri = 'https://accounts.spotify.com/api/token';
+    $uri = 'https://api.discogs.com/oauth/request_token';
 
     # TODO: Attempt login
     # Authenticate against Spotify
@@ -81,7 +81,7 @@ class MusicSearchService {
     # Add issued_at to simplify expiration checks
     $access_token['issued_at'] = $date->getTimestamp();
     # Store access token in session
-    $this->session->set('spotify_access_token', $access_token);
+    $this->session->set('discogs_access_token', $access_token);
   }
 
   /**
@@ -90,7 +90,7 @@ class MusicSearchService {
   private function token_expired() {
     #$request = \Drupal::request();
     #$session = $request->getSession();
-    $access_token = $this->session->get('spotify_access_token');
+    $access_token = $this->session->get('discogs_access_token');
     $date = new \DateTime();
 
     return (
@@ -110,7 +110,7 @@ class MusicSearchService {
       $this->login();
     }
 
-    $token = $this->session->get('spotify_access_token');
+    $token = $this->session->get('discogs_access_token');
 
     $options = array(
       'headers' => array(
@@ -141,7 +141,7 @@ class MusicSearchService {
    * @return mixed|\Psr\Http\Message\StreamInterface
    */
   public function search($query, $types) {
-    $uri = 'https://api.spotify.com/v1/search';
+    $uri = 'https://api.discogs.com/database/search';
     $query_params = array(
       'q' => $query,
       'type' => $types
@@ -154,10 +154,8 @@ class MusicSearchService {
 
 
 
-  
-  
-  
-  //obsolete
+
+  //obsolete, use for tests
 
   /**
    * Returns the salutation.
@@ -168,12 +166,12 @@ class MusicSearchService {
   public function getSalutation() {
     #$request = \Drupal::request();
     #$session = $request->getSession();
-    $access_token = $this->session->get('spotify_access_token');
-    #$session->set('spotify_access_token', '');
+    $access_token = $this->session->get('discogs_access_token');
+    #$session->set('discogs_access_token', '');
 
     if ($this->token_expired()) {
       $this->login();
-      $access_token = $this->session->get('spotify_access_token');
+      $access_token = $this->session->get('discogs_access_token');
     }
 
     $options = array(
@@ -187,7 +185,7 @@ class MusicSearchService {
       )
     );
 
-    $uri = 'https://api.spotify.com/v1/search';
+    $uri = 'https://api.discogs.com/database/search';
     $response = \Drupal::httpClient()->get($uri, $options);
 
     $test = json_decode($response->getBody()->getContents(), true);
@@ -207,7 +205,7 @@ class MusicSearchService {
     #$data = (string) $response->getBody();
 
     return $data;
-
+  
   }
 
 }

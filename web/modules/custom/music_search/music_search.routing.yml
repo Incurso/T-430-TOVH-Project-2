@@ -19,3 +19,10 @@ music_search.configuration_form:
     _title: "Music Search configuration"
   requirements:
     _permission: "administer site configuration"
+discogs_search.configuration_form:
+  path: "/admin/config/discogs-search-configuration"
+  defaults:
+    _form: Drupal\music_search\Form\DiscogsSearchConfigurationForm
+    _title: "Discogs Search configuration"
+  requirements:
+    _permission: "administer site configuration"
