@@ -70,9 +70,10 @@ class MusicSearchArtistForm extends FormBase {
       '#default_value' => $types ? $types : ['artist']
     );
 
+
     $form['actions']['submit'] = [
       '#type' => 'submit',
-      '#value' => $this->t('Search'),
+      '#value' => $this->t('Save'),
       '#name' => ''
     ];
 
