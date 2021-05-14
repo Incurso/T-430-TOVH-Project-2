@@ -37,28 +37,35 @@ class MusicSearchAlbumForm extends FormBase {
   }
 
   /**
-   * add album attributes in add album form
+   * add album songs in add album form
    */
-  public function addSongsForm(FormStateInterface $form_state) {
+  public function addSongsForm(FormStateInterface $form_state, array $spotifySongs) {
     /**
      * add songs in add album form
      */
-    $attributes = array(
-      array( 'track_name' => 'lag1', 'track_length' => '3:54', 'uid' => 1),
-      array( 'track_name' => 'lag2', 'track_length' => '2:22', 'uid' => 2),
-      array( 'track_name' => 'lag3', 'track_length' => '5:30', 'uid' => 3),
-    );
+    $songs = array();
+
+      foreach($spotifySongs['tracks']['items'] as $item) {
+        array_push($songs, array(
+          'track_name' => $item['name'],
+          'track_length' => $item['duration_ms'] / 1000,
+          'track_number' =>  $item['track_number']
+          )
+        );
+    }
 
     $header = array(
+      'track_number' => t('track number'),
       'track_name' => t('track Name'),
       'track_length' => t('track length'),
     );
     $options = array();
 
-    foreach ($attributes as $attribute) {
-      $options[$attribute['uid']] = array(
-        'track_name' => $attribute['track_name'],
-        'track_length' => $attribute['track_length'],
+    foreach ($songs as $song) {
+      $options[$song['track_number']] = array(
+        'track_number' => $song['track_number'],
+        'track_name' => $song['track_name'],
+        'track_length' => $song['track_length'],
       );
     }
     $form['table'] = array(
@@ -79,12 +86,12 @@ class MusicSearchAlbumForm extends FormBase {
     /**
      * add album attributes in add album form
      */
-  public function addAlbumAttributes(FormStateInterface $formState){
+  public function addAlbumAttributes(FormStateInterface $formState, array $album){
     $attributes = array(
-      array('name' => 'Genre (spotify)', 'description' => 'Rock', 'uid' => 1),
-      array('name' => 'Label (spotify)', 'description' => 'Elektra', 'uid' => 2),
-      array('name' => 'Label (discogs)', 'description' => 'Virgin', 'uid' => 3),
-      array('name' => 'Release Date', 'description' => '1990-01-01', 'uid' => 4),
+      array('name' => 'Genre (spotify)', 'description' => $album['genres'], 'uid' => 1),
+      array('name' => 'Label (spotify)', 'description' => $album['label'], 'uid' => 2),
+      array('name' => 'Label (discogs)', 'description' => '', 'uid' => 3),
+      array('name' => 'Release Date', 'description' => $album['release_date'], 'uid' => 4),
     );
     $options = array();
 
@@ -158,21 +165,21 @@ class MusicSearchAlbumForm extends FormBase {
       '#type' => 'textfield',
       '#title' => $this->t('genre'),
       '#description' => $this->t('Please provide the genre'),
-      '#default_value' => 'Rock and roll'
+      '#default_value' => ''
     ];
 
     $form['releasedate'] = [
       '#type' => 'textfield',
       '#title' => $this->t('release date'),
       '#description' => $this->t('Please provide the release date'),
-      '#default_value' => '1991'
+      '#default_value' => ''
     ];
 
     $form['label'] = [
       '#type' => 'textfield',
       '#title' => $this->t('label'),
       '#description' => $this->t('Please provide the record label'),
-      '#default_value' => 'Elektra'
+      '#default_value' => ''
     ];
 
 /*
@@ -201,8 +208,8 @@ class MusicSearchAlbumForm extends FormBase {
 
     return [
       $form,
-      $this->addAlbumAttributes($form_state),
-      $this->addSongsForm($form_state)
+      $this->addAlbumAttributes($form_state, $album),
+      $this->addSongsForm($form_state, $album)
     ]; # parent::buildForm($form, $form_state);
   }
 
