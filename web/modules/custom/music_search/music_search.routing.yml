@@ -5,6 +5,13 @@ music_search.search:
     _title: "Music Search"
   requirements:
     _permission: "access content"
+music_search.artist:
+  path: "/music_search/artist"
+  defaults:
+    _form: Drupal\music_search\Form\MusicSearchArtistForm
+    _title: "Music Search Artist"
+  requirements:
+    _permission: "access content"
 music_search.form:
   path: "/music_search_form"
   defaults:

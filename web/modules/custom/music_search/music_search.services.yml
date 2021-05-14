@@ -4,6 +4,8 @@ services:
     arguments: ["@config.factory"]
   discogs_search.service:
     class: Drupal\music_search\DiscogsSearchService
+  music_search.artist:
+    class: Drupal\music_search\Form\MusicSearchArtistForm
     arguments: ["@config.factory"]
   music_search.form:
     class: Drupal\music_search\Form\MusicSearchForm
