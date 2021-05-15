@@ -52,11 +52,7 @@ class MusicSearchListSearchForm extends FormBase {
     $query = $session->get('search_query');
     $types = $session->get('search_types');
 
-    if ($request->getMethod() == 'POST') {
-      $session->set('search_query', $request->request->get('q'));
-      $session->set('search_types', $request->request->get('types'));
-    } else if ($query && $types) {
-      $uri = Url::fromRoute('music_search.search')->toString();
+    if ($query && $types) {
       $searchResults = $this->service->search($query, $types);
     }
 
@@ -89,10 +85,13 @@ class MusicSearchListSearchForm extends FormBase {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
+    $request = \Drupal::request();
+    $session = $request->getSession();
 
+    $searchResults = null;
 
+    $types = $session->get('search_types');
 
-    #parent::submitForm($form, $form_state);
     $userInput = $form_state->getUserInput();
     $parameters = array();
     if (array_key_exists('spotify_id', $userInput)) {
@@ -102,8 +101,6 @@ class MusicSearchListSearchForm extends FormBase {
       $parameters['discogs_id'] = $userInput['discogs_id'];
     }
 
-
-
-    $form_state->setRedirect('music_search.', $parameters);
+    $form_state->setRedirect('music_search.'. $types, $parameters);
   }
 }

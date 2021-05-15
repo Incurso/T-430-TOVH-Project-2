@@ -42,9 +42,10 @@ class MusicSearchArtistForm extends FormBase {
   public function buildForm(array $form, FormStateInterface $form_state) {
     $request = \Drupal::request();
     $session = $request->getSession();
-    $id = $request->query->get('spotify_id');
+    $discogs_id = $request->query->get('discogs_id');
+    $spotify_id = $request->query->get('spotify_id');
 
-    $artist = $this->service->getArtist($id);
+    $artist = $this->service->getArtist($spotify_id, $discogs_id);
 
     $query = $session->get('search_query');
     $types = $session->get('search_types');
@@ -56,31 +57,40 @@ class MusicSearchArtistForm extends FormBase {
       '#type' => 'textfield',
       '#title' => $this->t('Name'),
       '#description' => $this->t('Please provide the artist name'),
-      '#default_value' => $artist['name']
+      # '#default_value' => $artist['name']
     ];
 
-    $form['id'] = [
+    $form['discogs_id'] = [
       '#type' => 'textfield',
-      '#title' => $this->t('spotify_id'),
-      '#description' => $this->t('Please provide the spotify id'),
-      '#default_value' => $artist['id']
+      '#title' => $this->t('Discogs_ID'),
+      '#description' => $this->t('Please provide the discogs id'),
+      '#default_value' => $discogs_id
     ];
 
-    $photo[] = $this->service->_save_file(
+    $form['spotify_id'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Spotify_ID'),
+      '#description' => $this->t('Please provide the spotify id'),
+      '#default_value' => $spotify_id
+    ];
+
+    /*
+    $photo[] = $this->service->saveFile(
       $artist['images'][0],
       'artist_images',
       'image',
       $artist['name'] . ' - photo',
       $artist['name'] . '_band_photo.jpg'
     );
+    */
 
-
+    /*
     $form['images'] = array(
       '#type' => 'checkbox',
       '#title' => '<img src="' . $artist['images'][1]['url'] .'">',
       '#description' => $this->t('Do you want to add the image'),
     );
-
+    */
 
     $form['actions']['submit'] = [
       '#type' => 'submit',
@@ -88,7 +98,7 @@ class MusicSearchArtistForm extends FormBase {
       '#name' => ''
     ];
 
-    return $form; # parent::buildForm($form, $form_state);
+    return $form;
   }
 
   /**

@@ -45,11 +45,11 @@ class MusicSearchAlbumForm extends FormBase {
      */
     $songs = array();
 
-      foreach($spotifySongs['tracks']['items'] as $item) {
+      foreach($spotifySongs['tracks'] as $item) {
         array_push($songs, array(
-          'track_name' => $item['name'],
-          'track_length' => $item['duration_ms'] / 1000,
-          'track_number' =>  $item['track_number']
+          'track_name' => $item['title'],
+          'track_length' => $item['duration'],
+          'track_number' =>  $item['position']
           )
         );
     }
@@ -91,7 +91,7 @@ class MusicSearchAlbumForm extends FormBase {
       array('name' => 'Genre (spotify)', 'description' => $album['genres'], 'uid' => 1),
       array('name' => 'Label (spotify)', 'description' => $album['label'], 'uid' => 2),
       array('name' => 'Label (discogs)', 'description' => '', 'uid' => 3),
-      array('name' => 'Release Date', 'description' => $album['release_date'], 'uid' => 4),
+      array('name' => 'Release Date', 'description' => $album['year'], 'uid' => 4),
     );
     $options = array();
 
@@ -127,12 +127,13 @@ class MusicSearchAlbumForm extends FormBase {
   public function buildForm(array $form, FormStateInterface $form_state) {
     $request = \Drupal::request();
     $session = $request->getSession();
-    $id = $request->query->get('id');
+    $discogs_id = $request->query->get('discogs_id');
+    $spotify_id = $request->query->get('spotify_id');
 
     /**
      * Get albums from the web api (discogs or spotify)
      */
-    $album = $this->service->getAlbum($id);
+    $album = $this->service->getAlbum($spotify_id, $discogs_id);
 
     $query = $session->get('search_query');
     $types = $session->get('search_types');
@@ -144,21 +145,21 @@ class MusicSearchAlbumForm extends FormBase {
       '#type' => 'textfield',
       '#title' => $this->t('Name'),
       '#description' => $this->t('Please provide the album name'),
-      '#default_value' => $album['name']
+      # '#default_value' => $album['name']
     ];
 
-    $form['spotifyid'] = [
+    $form['spotify_id'] = [
       '#type' => 'textfield',
       '#title' => $this->t('spotify_id'),
       '#description' => $this->t('Please provide the spotify id'),
-      '#default_value' => $album['id']
+      '#default_value' => $spotify_id
     ];
 
-    $form['discogsid'] = [
+    $form['discogs_id'] = [
       '#type' => 'textfield',
       '#title' => $this->t('discogs_id'),
       '#description' => $this->t('Please provide the discogs id'),
-      '#default_value' => $album['id']
+      '#default_value' => $discogs_id
     ];
 
     $form['genre'] = [
@@ -194,7 +195,7 @@ class MusicSearchAlbumForm extends FormBase {
 
     $form['images'] = array(
       '#type' => 'checkbox',
-      '#title' => '<img src="' . $album['images'][1]['url'] .'">',
+      '#title' => '<img src="' . $album['discogs']['images'][0]['url'] .'">',
       '#description' => $this->t('Do you want to add the image'),
     );
 
@@ -204,12 +205,10 @@ class MusicSearchAlbumForm extends FormBase {
       '#name' => ''
     ];
 
-
-
     return [
       $form,
-      $this->addAlbumAttributes($form_state, $album),
-      $this->addSongsForm($form_state, $album)
+      $this->addAlbumAttributes($form_state, $album['discogs']),
+      $this->addSongsForm($form_state, $album['discogs'])
     ]; # parent::buildForm($form, $form_state);
   }
 

@@ -8,8 +8,6 @@ services:
   music_search_spotify.service:
     class: Drupal\music_search\MusicSearchSpotifyService
     arguments: ["@config.factory"]
-  discogs_search.service:
-    class: Drupal\music_search\DiscogsSearchService
   music_search.artist:
     class: Drupal\music_search\Form\MusicSearchArtistForm
     arguments: ["@config.factory"]
