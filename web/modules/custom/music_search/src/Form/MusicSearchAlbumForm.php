@@ -55,9 +55,9 @@ class MusicSearchAlbumForm extends FormBase {
     }
 
     $header = array(
-      'track_number' => t('track number'),
-      'track_name' => t('track Name'),
-      'track_length' => t('track length'),
+      'track_number' => t('Track Number'),
+      'track_name' => t('Track Name'),
+      'track_length' => t('Track Length'),
     );
     $options = array();
 
@@ -69,7 +69,7 @@ class MusicSearchAlbumForm extends FormBase {
       );
     }
     $form['table'] = array(
-      '#caption' => $this->t($tableName),
+      '#caption' => $tableName,
       '#header' => $header,
       '#empty' => t('No users found'),
       '#type' => 'tableselect',
@@ -97,8 +97,8 @@ class MusicSearchAlbumForm extends FormBase {
     $options = array();
 
     $header = array(
-      'name' => t('name'),
-      'description' => t('description'),
+      'name' => t('Name'),
+      'description' => t('Description'),
     );
 
     foreach ($attributes as $attribute) {
@@ -194,9 +194,14 @@ class MusicSearchAlbumForm extends FormBase {
     );
 */
 
-    $form['images'] = array(
+    $form['spotifyImages'] = array(
       '#type' => 'checkbox',
       '#title' => '<img src="' . $album['spotify']['images'][0]['url'] .'">',
+      '#description' => $this->t('Do you want to add the image'),
+    );
+    $form['discogImage'] = array(
+      '#type' => 'checkbox',
+      '#title' => '<img src="' . $album['discogs']['images'][0]['url'] .'">',
       '#description' => $this->t('Do you want to add the image'),
     );
 
