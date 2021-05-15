@@ -209,8 +209,8 @@ class MusicSearchAlbumForm extends FormBase {
     return [
       $form,
       $this->addAlbumAttributes($form_state, $album),
-      $spotify_id ? $this->addSongsForm($form_state, $album['spotify'], "spotify song list") : null,
-      $discogs_id ? $this->addSongsForm($form_state, $album['discogs'], "discogs song list") : null,
+      $spotify_id ? $this->addSongsForm($form_state, $album['spotify'], $this->t('Spotify Song List')) : null,
+      $discogs_id ? $this->addSongsForm($form_state, $album['discogs'], $this->t('Discogs Song List')) : null,
     ]; # parent::buildForm($form, $form_state);
   }
 
