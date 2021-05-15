@@ -199,6 +199,20 @@ class MusicSearchSpotifyService {
   public function getAlbum($id) {
     $uri = 'https://api.spotify.com/v1/albums/'. $id;
 
-    return $this->query_api($uri);
+    $response = $this->query_api($uri);
+
+    $returnData = array(
+      'id' => $response['id'],
+      'title' => $response['title'],
+      'images' => $response['images'],
+      'description' => $response['notes'],
+      'tracks' => $response['tracklist'],
+      'artists' => $response['artists'],
+      'genres' => '',
+      'label' => '',
+      'year' => '',
+    );
+
+    return $returnData;
   }
 }

@@ -144,4 +144,41 @@ class MusicSearchDiscogsService {
 
     return $returnData;
   }
+
+  public function getAlbum($id) {
+    $uri = 'https://api.discogs.com/masters/'. $id;
+
+    $response = $this->query_api($uri);
+
+    $images = array();
+    foreach ($response['images'] as $image) {
+      array_push($images, array(
+        'url' => $image['uri']
+      ));
+    }
+
+    $tracks = array();
+    foreach ($response['tracklist'] as $track) {
+      array_push($tracks, array(
+        'id' => '',
+        'title' => $track['title'],
+        'duration' => $track['duration'],
+        'position' => $track['position'],
+      ));
+    }
+
+    $returnData = array(
+      'id' => $response['id'],
+      'title' => $response['title'],
+      'images' => $images,
+      'description' => $response['notes'],
+      'tracks' => $tracks,
+      'artists' => $response['artists'],
+      'genres' => $response['genres'],
+      'label' => '',
+      'year' => $response['year'],
+    );
+
+    return $returnData;
+  }
 }

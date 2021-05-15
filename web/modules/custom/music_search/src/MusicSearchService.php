@@ -120,23 +120,31 @@ class MusicSearchService {
   }
 
   public function getArtist($spotify_id = null, $discogs_id = null) {
-    $returnData = array();
+    $serviceResponse = array();
 
     if ($discogs_id) {
-      $returnData['discogs'] = array();
       $serviceResponse['discogs'] = $this->discogsService->getArtist($discogs_id);
     }
 
     if ($spotify_id) {
-      $returnData['spotify'] = array();
       $serviceResponse['spotify'] = $this->spotifyService->getArtist($spotify_id);
     }
 
     return $serviceResponse; # $this->spotifyService->getArtist($id);
   }
 
-  public function getAlbum($id) {
-    return $this->spotifyService->getAlbum($id);
+  public function getAlbum($spotify_id = null, $discogs_id = null) {
+    $serviceResponse = array();
+
+    if ($discogs_id) {
+      $serviceResponse['discogs'] = $this->discogsService->getAlbum($discogs_id);
+    }
+
+    if ($spotify_id) {
+      $serviceResponse['spotify'] = $this->spotifyService->getAlbum($spotify_id);
+    }
+
+    return $serviceResponse;
   }
 
 
