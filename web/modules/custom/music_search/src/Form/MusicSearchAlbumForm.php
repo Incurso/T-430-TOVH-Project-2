@@ -39,7 +39,7 @@ class MusicSearchAlbumForm extends FormBase {
   /**
    * add album songs in add album form
    */
-  public function addSongsForm(FormStateInterface $form_state, array $spotifySongs) {
+  public function addSongsForm(FormStateInterface $form_state, array $spotifySongs, $tableName) {
     /**
      * add songs in add album form
      */
@@ -69,7 +69,7 @@ class MusicSearchAlbumForm extends FormBase {
       );
     }
     $form['table'] = array(
-      '#caption' => $this->t('Available Songs'),
+      '#caption' => $this->t($tableName),
       '#header' => $header,
       '#empty' => t('No users found'),
       '#type' => 'tableselect',
@@ -88,10 +88,11 @@ class MusicSearchAlbumForm extends FormBase {
      */
   public function addAlbumAttributes(FormStateInterface $formState, array $album){
     $attributes = array(
-      array('name' => 'Genre (spotify)', 'description' => $album['genres'], 'uid' => 1),
-      array('name' => 'Label (spotify)', 'description' => $album['label'], 'uid' => 2),
-      array('name' => 'Label (discogs)', 'description' => '', 'uid' => 3),
-      array('name' => 'Release Date', 'description' => $album['year'], 'uid' => 4),
+      array('name' => 'Genre (discogs)', 'description' => $album['discogs']['genres'], 'uid' => 1),
+      array('name' => 'description (discogs)', 'description' => $album['discogs']['description'], 'uid' => 2),
+      array('name' => 'Label (discogs)', 'description' => $album['discogs']['label'], 'uid' => 3),
+      array('name' => 'Release Date (discogs)', 'description' => $album['discogs']['year'], 'uid' => 4),
+      array('name' => 'Release Date (spotify)', 'description' => $album['spotify']['year'], 'uid' => 5),
     );
     $options = array();
 
@@ -145,7 +146,7 @@ class MusicSearchAlbumForm extends FormBase {
       '#type' => 'textfield',
       '#title' => $this->t('Name'),
       '#description' => $this->t('Please provide the album name'),
-      # '#default_value' => $album['name']
+      '#default_value' => $album['spotify']['title']
     ];
 
     $form['spotify_id'] = [
@@ -207,10 +208,9 @@ class MusicSearchAlbumForm extends FormBase {
 
     return [
       $form,
-      $spotify_id ? $this->addAlbumAttributes($form_state, $album['spotify']) : null,
-      $discogs_id ? $this->addAlbumAttributes($form_state, $album['discogs']) : null,
-      $spotify_id ? $this->addSongsForm($form_state, $album['spotify']) : null,
-      $discogs_id ? $this->addSongsForm($form_state, $album['discogs']) : null,
+      $this->addAlbumAttributes($form_state, $album),
+      $spotify_id ? $this->addSongsForm($form_state, $album['spotify'], "spotify song list") : null,
+      $discogs_id ? $this->addSongsForm($form_state, $album['discogs'], "discogs song list") : null,
     ]; # parent::buildForm($form, $form_state);
   }
 
