@@ -162,7 +162,7 @@ class MusicSearchAlbumForm extends FormBase {
       '#description' => $this->t('Please provide the discogs id'),
       '#default_value' => $discogs_id
     ];
-
+/*
     $form['genre'] = [
       '#type' => 'textfield',
       '#title' => $this->t('genre'),
@@ -183,7 +183,7 @@ class MusicSearchAlbumForm extends FormBase {
       '#description' => $this->t('Please provide the record label'),
       '#default_value' => ''
     ];
-
+*/
 /*
     $photo[] = $this->service->_save_file(
       $album['images'][0],
