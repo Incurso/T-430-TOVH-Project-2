@@ -195,7 +195,7 @@ class MusicSearchAlbumForm extends FormBase {
 
     $form['images'] = array(
       '#type' => 'checkbox',
-      '#title' => '<img src="' . $album['discogs']['images'][0]['url'] .'">',
+      '#title' => '<img src="' . $album['spotify']['images'][0]['url'] .'">',
       '#description' => $this->t('Do you want to add the image'),
     );
 
@@ -207,8 +207,10 @@ class MusicSearchAlbumForm extends FormBase {
 
     return [
       $form,
-      $this->addAlbumAttributes($form_state, $album['discogs']),
-      $this->addSongsForm($form_state, $album['discogs'])
+      $spotify_id ? $this->addAlbumAttributes($form_state, $album['spotify']) : null,
+      $discogs_id ? $this->addAlbumAttributes($form_state, $album['discogs']) : null,
+      $spotify_id ? $this->addSongsForm($form_state, $album['spotify']) : null,
+      $discogs_id ? $this->addSongsForm($form_state, $album['discogs']) : null,
     ]; # parent::buildForm($form, $form_state);
   }
 

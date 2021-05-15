@@ -201,16 +201,33 @@ class MusicSearchSpotifyService {
 
     $response = $this->query_api($uri);
 
+    $images = array();
+    foreach ($response['images'] as $image) {
+      array_push($images, array(
+        'url' => $image['url']
+      ));
+    }
+
+    $tracks = array();
+    foreach ($response['tracks']['items'] as $track) {
+      array_push($tracks, array(
+        'id' => $track['id'],
+        'title' => $track['name'],
+        'duration' => $track['duration_ms'] / 1000,
+        'position' => $track['track_number'],
+      ));
+    }
+
     $returnData = array(
       'id' => $response['id'],
-      'title' => $response['title'],
-      'images' => $response['images'],
-      'description' => $response['notes'],
-      'tracks' => $response['tracklist'],
+      'title' => $response['name'],
+      'images' => $images,
+      'description' => '',
+      'tracks' => $tracks,
       'artists' => $response['artists'],
-      'genres' => '',
-      'label' => '',
-      'year' => '',
+      'genres' => $response['genres'],
+      'label' => $response['label'],
+      'year' => $response['release_date'],
     );
 
     return $returnData;

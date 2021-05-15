@@ -171,7 +171,7 @@ class MusicSearchDiscogsService {
       'id' => $response['id'],
       'title' => $response['title'],
       'images' => $images,
-      'description' => $response['notes'],
+      'description' => array_key_exists('notes', $response) ? $response['notes'] : '',
       'tracks' => $tracks,
       'artists' => $response['artists'],
       'genres' => $response['genres'],
