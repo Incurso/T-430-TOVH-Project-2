@@ -78,8 +78,11 @@ class MusicSearchController extends ControllerBase
     $types = $session->get('search_types');
 
     if ($request->getMethod() == 'POST') {
+      # $types = $request->request->get('types');
       $session->set('search_query', $request->request->get('q'));
-      $session->set('search_types', $request->request->get('types'));
+      if ($request->request->get('types')) {
+        $session->set('search_types', $request->request->get('types'));
+      }
     } else if ($query && $types) {
       $uri = Url::fromRoute('music_search.search')->toString();
       # $searchResults = $this->service->search($query, $types);
@@ -89,7 +92,7 @@ class MusicSearchController extends ControllerBase
     $listForm = \Drupal::formbuilder()->getForm($this->listForm);
 
     $session->remove('search_query');
-    $session->remove('search_types');
+    # $session->remove('search_types');
 
     return [
       '#theme' => array('container'),
