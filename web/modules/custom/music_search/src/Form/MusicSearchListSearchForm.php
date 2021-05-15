@@ -22,6 +22,7 @@ class MusicSearchListSearchForm extends FormBase {
     ];
   }
 
+
   public function __construct(MusicSearchService $service) {
     $this->service = $service;
   }
