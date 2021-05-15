@@ -24,4 +24,4 @@ services:
     arguments: ["@config.factory"]
   music_search_list.form:
     class: Drupal\music_search\Form\MusicSearchListSearchForm
-    arguments: ["@music_search.service"]
+    arguments: ["@music_search.service", "@tempstore.private"]

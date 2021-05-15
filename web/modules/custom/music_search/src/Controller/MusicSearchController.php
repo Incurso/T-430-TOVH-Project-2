@@ -89,7 +89,7 @@ class MusicSearchController extends ControllerBase
     $listForm = \Drupal::formbuilder()->getForm($this->listForm);
 
     $session->remove('search_query');
-    $session->remove('search_types');
+//    $session->remove('search_types');
 
     return [
       '#theme' => array('container'),

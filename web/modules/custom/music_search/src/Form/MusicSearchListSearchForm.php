@@ -22,6 +22,7 @@ class MusicSearchListSearchForm extends FormBase {
     ];
   }
 
+
   public function __construct(MusicSearchService $service) {
     $this->service = $service;
   }
@@ -88,12 +89,8 @@ class MusicSearchListSearchForm extends FormBase {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-    /*
-    $this->config('music_search.settings')
-      ->set('artist_name', $form_state->getValue('artist_name'))
-      ->set('album_name', $form_state->getValue('album_name'))
-      ->save();
-    */
+
+
 
     #parent::submitForm($form, $form_state);
     $userInput = $form_state->getUserInput();
@@ -104,6 +101,9 @@ class MusicSearchListSearchForm extends FormBase {
     if (array_key_exists('discogs_id', $userInput)) {
       $parameters['discogs_id'] = $userInput['discogs_id'];
     }
-    $form_state->setRedirect('music_search.artist', $parameters);
+
+
+
+    $form_state->setRedirect('music_search.', $parameters);
   }
 }
