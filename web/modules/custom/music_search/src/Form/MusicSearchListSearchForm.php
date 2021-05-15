@@ -73,9 +73,9 @@ class MusicSearchListSearchForm extends FormBase {
    * {@inheritdoc}
    */
   public function validateForm(array &$form, FormStateInterface $form_state) {
-    $client_id = $form_state->getValue('artist_name');
-    if(strlen($client_id) > 32) {
-      $form_state->setErrorByName('artist_name', $this->t('The artist name is to long'));
+    $userInput = $form_state->getUserInput();
+    if(!array_key_exists('spotify_id', $userInput) && !array_key_exists('discogs_id', $userInput)) {
+      $form_state->setErrorByName('spotify', $this->t('Select at least one item before you try to add.'));
     }
 
     parent::validateForm($form, $form_state);
