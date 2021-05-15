@@ -98,7 +98,7 @@ class MusicSearchService {
                 '#caption' => ucfirst($serviceKey) .' Artists',
                 '#header' => [
                   'thumbnail' => '',
-                  'title' => t('Title'),
+                  'name' => t('Title'),
                 ],
                 '#multiple' => FALSE,
                 '#options' => array()
@@ -108,7 +108,7 @@ class MusicSearchService {
             foreach ($typeValue as $item) {
               $returnData[$serviceKey][$typeKey]['#options'][$item['id']] = array(
                 'thumbnail' => ['data' => ['#theme' => 'image', '#width' => 150, '#alt' => $item['thumbnail'], '#uri' => $item['thumbnail']]],
-                'title' => ['data' => $item['title']],
+                'name' => ['data' => $item['title']],
               );
             }
             break;
@@ -119,8 +119,20 @@ class MusicSearchService {
     return $returnData;
   }
 
-  public function getArtist($id) {
-    return $this->spotifyService->getArtist($id);
+  public function getArtist($spotify_id = null, $discogs_id = null) {
+    $returnData = array();
+
+    if ($discogs_id) {
+      $returnData['discogs'] = array();
+      $serviceResponse['discogs'] = $this->discogsService->getArtist($discogs_id);
+    }
+
+    if ($spotify_id) {
+      $returnData['spotify'] = array();
+      $serviceResponse['spotify'] = $this->spotifyService->getArtist($spotify_id);
+    }
+
+    return $serviceResponse; # $this->spotifyService->getArtist($id);
   }
 
   public function getAlbum($id) {
@@ -145,7 +157,7 @@ class MusicSearchService {
    * @return int|null|string
    * @throws EntityStorageException
    */
-  function _save_file($url, $folder, $type, $title, $basename, $uid = 1) {
+  function saveFile($url, $folder, $type, $title, $basename, $uid = 1) {
     if(!is_dir(\Drupal::config('system.file')->get('default_scheme').'://' . $folder)) {
       return null;
     }

@@ -130,8 +130,18 @@ class MusicSearchDiscogsService {
   }
 
   public function getArtist($id) {
-    $uri = 'https://api.discogs.com/database/artists/'. $id;
+    $uri = 'https://api.discogs.com/artists/'. $id;
 
-    return $this->query_api($uri);
+    $response = $this->query_api($uri);
+
+    $returnData = array(
+      'id' => $response['id'],
+      'name' => $response['name'],
+      'images' => $response['images'],
+      'description' => $response['profile'],
+      'website' => reset($response['urls'])
+    );
+
+    return $returnData;
   }
 }
