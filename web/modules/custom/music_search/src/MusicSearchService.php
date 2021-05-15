@@ -69,26 +69,24 @@ class MusicSearchService {
           case 'albums':
             if (!array_key_exists($typeKey, $returnData[$serviceKey])) {
               $returnData[$serviceKey][$typeKey] = array(
-                '#theme' => 'table',
+                '#type' => 'tableselect',
                 '#caption' => ucfirst($serviceKey) .' Albums',
                 '#header' => [
-                  ['data' => t('Album Cover')],
-                  ['data' => t('Title')],
-                  ['data' => t('Release date')],
-                  []
+                  'thumbnail' => t('Album Cover'),
+                  'title' => t('Title'),
+                  'year' => t('Release date'),
                 ],
-                '#rows' => array()
+                '#multiple' => FALSE,
+                '#options' => array()
               );
             }
 
             foreach ($typeValue as $item) {
-              array_push($returnData[$serviceKey][$typeKey]['#rows'], array(
-                ['data' => ['#theme' => 'image', '#width' => 150, '#alt' => $item['thumbnail'], '#uri' => $item['thumbnail']]],
-                ['data' => $item['title']],
-                ['data' => $item['year']],
-                ['data' => ['#markup' => '<input type="checkbox" name="'. $item['id'] .'" value="'. $item['id'] .'"/>']],
-                ['data' => ['#markup' => '<a href="./music_search/album/?id='. $item['id'] .'">' . t('Add') . '</a>']]
-              ));
+              $returnData[$serviceKey][$typeKey]['#options'][$item['id']] = array(
+                'thumbnail' => ['data' => ['#theme' => 'image', '#width' => 150, '#alt' => $item['thumbnail'], '#uri' => $item['thumbnail']]],
+                'title' => ['data' => $item['title']],
+                'year' => ['data' => $item['year']],
+              );
             }
             break;
           case 'artists':
