@@ -6,6 +6,7 @@ namespace Drupal\music_search\Controller;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Url;
 use Drupal\music_search\Form\MusicSearchForm;
+use Drupal\music_search\Form\MusicSearchListSearchForm;
 use Drupal\music_search\MusicSearchService;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -23,18 +24,15 @@ class MusicSearchController extends ControllerBase
   protected $service;
 
   /**
-   * discogs search service
-   *
-   * @var \Drupal\music_search\DiscogsSearchService
-   */
-  protected $discogsService;
-
-
-  /**
    * The search form
    * @var \Drupal\music_search\Form\MusicSearchForm
    */
-  protected $search_form;
+  protected $searchForm;
+
+  /**
+   * @var \Drupal\music_search\Form\MusicSearchListSearchForm
+   */
+  protected $listForm;
 
   /**
    * MusicSearchController constructor.
@@ -46,10 +44,10 @@ class MusicSearchController extends ControllerBase
    * @param \Drupal\music_search\Form\MusicSearchForm $searchForm
    * the search form
    */
-  public function __construct(MusicSearchService $service, MusicSearchForm $searchForm) {
+  public function __construct(MusicSearchService $service, MusicSearchForm $search_form, MusicSearchListSearchForm $list_form) {
     $this->service = $service;
-    //$this->discogsService = $discogsService;
-    $this->search_form = $searchForm;
+    $this->searchForm = $search_form;
+    $this->listForm = $list_form;
   }
 
   /**
@@ -59,9 +57,8 @@ class MusicSearchController extends ControllerBase
   {
     return new static(
       $container->get('music_search.service'),
-      //$container->get('discogs_search.service'),
-
-      $container->get('music_search.form')
+      $container->get('music_search.form'),
+      $container->get('music_search_list.form')
     );
   }
 
@@ -85,10 +82,11 @@ class MusicSearchController extends ControllerBase
       $session->set('search_types', $request->request->get('types'));
     } else if ($query && $types) {
       $uri = Url::fromRoute('music_search.search')->toString();
-      $searchResults = $this->service->search($query, $types);
+      # $searchResults = $this->service->search($query, $types);
     }
 
-    $search_form = \Drupal::formbuilder()->getForm($this->search_form);
+    $searchForm = \Drupal::formbuilder()->getForm($this->searchForm);
+    $listForm = \Drupal::formbuilder()->getForm($this->listForm);
 
     $session->remove('search_query');
     $session->remove('search_types');
@@ -97,9 +95,10 @@ class MusicSearchController extends ControllerBase
       '#theme' => array('container'),
       '#attributes' => [],
       '#children' => array(
-        $search_form,
-        $searchResults ? reset($searchResults['spotify']) : null,
-        $searchResults ? reset($searchResults['discogs']) : null,
+        $searchForm,
+        $listForm,
+        #$searchResults ? reset($searchResults['spotify']) : null,
+        #$searchResults ? reset($searchResults['discogs']) : null,
       )
     ];
   }

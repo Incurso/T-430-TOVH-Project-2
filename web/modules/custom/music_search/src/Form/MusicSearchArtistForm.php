@@ -42,7 +42,7 @@ class MusicSearchArtistForm extends FormBase {
   public function buildForm(array $form, FormStateInterface $form_state) {
     $request = \Drupal::request();
     $session = $request->getSession();
-    $id = $request->query->get('id');
+    $id = $request->query->get('spotify_id');
 
     $artist = $this->service->getArtist($id);
 

@@ -36,9 +36,6 @@ class MusicSearchForm extends FormBase {
     $query = $session->get('search_query');
     $types = $session->get('search_types');
 
-    $form['#method'] = 'post';
-    # $form['#action'] = Url::fromRoute('music_search.search')->toString();
-
     $form['q'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Search'),
