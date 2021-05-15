@@ -70,53 +70,6 @@ class MusicSearchListSearchForm extends FormBase {
     );
 
     return $form;
-
-    /*
-    return [
-      '#theme' => array('container'),
-      '#attributes' => [],
-      '#children' => array(
-        $searchForm,
-        $searchResults ? reset($searchResults['spotify']) : null,
-        $searchResults ? reset($searchResults['discogs']) : null,
-      )
-    ];
-    */
-    /*
-    $request = \Drupal::request();
-    $session = $request->getSession();
-
-    $query = $session->get('search_query');
-    $types = $session->get('search_types');
-
-    $form['#method'] = 'post';
-    # $form['#action'] = Url::fromRoute('music_search.search')->toString();
-
-    $form['q'] = [
-      '#type' => 'textfield',
-      '#title' => $this->t('Search'),
-      '#description' => $this->t('Please provide the artist name'),
-      '#default_value' => $query ? $query : 'Metallica'
-    ];
-
-    $form['types'] = array(
-      '#type' => 'radios',
-      '#title' => $this->t('Types'),
-      '#options' => array(
-        'album' => $this->t('Albums'),
-        'artist' => $this->t('Artist'),
-      ),
-      '#default_value' => $types ? $types : 'artist'
-    );
-
-    $form['actions']['submit'] = [
-      '#type' => 'submit',
-      '#value' => $this->t('Search'),
-      '#name' => ''
-    ];
-
-    return $form; # parent::buildForm($form, $form_state);
-    */
   }
 
   /**
