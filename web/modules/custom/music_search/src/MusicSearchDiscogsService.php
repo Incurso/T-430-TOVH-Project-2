@@ -166,7 +166,7 @@ class MusicSearchDiscogsService {
     $tracks = array();
     foreach ($response['tracklist'] as $track) {
       array_push($tracks, array(
-        'id' => '',
+        'id' => $id .'-'. $track['position'],
         'title' => $track['title'],
         'duration' => $track['duration'],
         'position' => $track['position'],

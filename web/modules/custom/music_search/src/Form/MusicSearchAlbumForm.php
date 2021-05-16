@@ -25,16 +25,18 @@ class MusicSearchAlbumForm extends FormBase {
    * @param $multi
    * @return array
    */
-  private function getAlbumTableselect ($field, $required, $multi) {
+  private function getAlbumTableselect ($caption, $fields, $required, $multi) {
+    $header = [];
+    foreach ($fields as $field) {
+      $header[$field] =$this->t(ucfirst($field));
+    }
+
     return [
       '#type' => 'tableselect',
-      '#caption' => $this->t(ucfirst($field) . ($multi ? 's' : '')), # Add s if we are using multiselect
+      '#caption' => $this->t(ucfirst($caption)),
       '#required' => $required,
       '#multiple' => $multi,
-      '#header' => [
-        'source' => $this->t('Source'),
-        $field => $this->t(ucfirst($field)),
-      ],
+      '#header' => $header,
       '#options' => [],
     ];
   }
@@ -153,13 +155,6 @@ class MusicSearchAlbumForm extends FormBase {
     // Get albums from the web api (discogs or spotify)
     $album = $this->service->getAlbum($spotify_id, $discogs_id);
 
-    $form['title'] = [
-      '#type' => 'textfield',
-      '#title' => $this->t('Name'),
-      '#description' => $this->t('Please provide the album name'),
-      '#default_value' => $album['spotify']['title']
-    ];
-
     $form['spotify_id'] = [
       '#type' => 'textfield',
       '#title' => $this->t('spotify_id'),
@@ -175,12 +170,14 @@ class MusicSearchAlbumForm extends FormBase {
     ];
 
     // Generate tableselects
-    $form['title'] = $this->getAlbumTableselect('title', TRUE, FALSE);
-    $form['year'] = $this->getAlbumTableselect('year', FALSE, FALSE);
-    $form['label'] = $this->getAlbumTableselect('label', FALSE, FALSE);
-    $form['genres'] = $this->getAlbumTableselect('genre', FALSE, TRUE);
-    $form['description'] = $this->getAlbumTableselect('description', FALSE, FALSE);
-    $form['images'] = $this->getAlbumTableselect('image', FALSE, TRUE);
+    $form['title'] = $this->getAlbumTableselect('title', ['source', 'title'], TRUE, FALSE);
+    $form['year'] = $this->getAlbumTableselect('year', ['source', 'year'], FALSE, FALSE);
+    $form['label'] = $this->getAlbumTableselect('label', ['source', 'label'], FALSE, FALSE);
+    $form['genres'] = $this->getAlbumTableselect('genres', ['source', 'genre'], FALSE, TRUE);
+    $form['description'] = $this->getAlbumTableselect('description', ['source', 'description'], FALSE, FALSE);
+    $form['discogs_tracks'] = $this->getAlbumTableselect('Discogs Tracks', ['number', 'title', 'duration'], FALSE, TRUE);
+    $form['spotify_tracks'] = $this->getAlbumTableselect('Spotify Tracks', ['number', 'title', 'duration'], FALSE, TRUE);
+    $form['images'] = $this->getAlbumTableselect('images', ['source', 'image'], FALSE, TRUE);
 
     // Populate tableselects with values
     foreach ($album as $serviceName => $service) {
@@ -188,8 +185,8 @@ class MusicSearchAlbumForm extends FormBase {
       $form['year']['#options'][$serviceName] = ['source' => $serviceName, 'year' => $service['year']];
       $form['label']['#options'][$serviceName] = ['source' => $serviceName, 'label' => $service['label']];
       $form['description']['#options'][$serviceName] = ['source' => $serviceName, 'description' => $service['description']];
-      //$form['genres']['#options'][$serviceName] = ['source' => $serviceName, 'genre' => $service['genre']];
 
+      // Add genres
       foreach ($service['genres'] as $genre) {
         $form['genres']['#options'][$genre] = [
           'source' => $serviceName,
@@ -197,6 +194,16 @@ class MusicSearchAlbumForm extends FormBase {
         ];
       }
 
+      // Add tracks
+      foreach ($service['tracks'] as $track) {
+        $form[$serviceName .'_tracks']['#options'][$track['id']] = [
+          'number' => $track['position'],
+          'title' => $track['title'],
+          'duration' => $track['duration']
+        ];
+      }
+
+      // Add images
       foreach ($service['images'] as $image) {
         $form['images']['#options'][$image['url']] = [
           'source' => $serviceName,
@@ -242,6 +249,7 @@ class MusicSearchAlbumForm extends FormBase {
     );
 */
 
+    /*
     $form['spotifyImages'] = array(
       '#type' => 'checkbox',
       '#title' => '<img src="' . $album['spotify']['images'][0]['url'] .'">',
@@ -252,6 +260,7 @@ class MusicSearchAlbumForm extends FormBase {
       '#title' => '<img src="' . $album['discogs']['images'][0]['url'] .'">',
       '#description' => $this->t('Do you want to add the image'),
     );
+    */
 
     $form['actions']['submit'] = [
       '#type' => 'submit',
@@ -259,12 +268,16 @@ class MusicSearchAlbumForm extends FormBase {
       '#name' => ''
     ];
 
+    /*
     return [
       $form,
       $this->addAlbumAttributes($form_state, $album),
       $spotify_id ? $this->addSongsForm($form_state, $album['spotify'], $this->t('Spotify Song List')) : null,
       $discogs_id ? $this->addSongsForm($form_state, $album['discogs'], $this->t('Discogs Song List')) : null,
     ]; # parent::buildForm($form, $form_state);
+    */
+
+    return $form;
   }
 
   /**
