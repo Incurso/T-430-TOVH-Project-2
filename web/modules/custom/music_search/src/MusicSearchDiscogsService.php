@@ -166,7 +166,7 @@ class MusicSearchDiscogsService {
       'name' => $response['name'],
       'images' => $images,
       'description' => $response['profile'],
-      'website' => reset($response['urls'])
+      'website' => array_key_exists('urls', $response) ? reset($response['urls']) : '',
     );
 
     return $returnData;
