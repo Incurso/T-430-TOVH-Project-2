@@ -11,7 +11,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 /**
  * search form for the main music search
  */
-class MusicSearchAlbumForm extends FormBase {
+class MusicSearchAlbumForm extends FormBase
+{
   /**
    * The Music Search Album Service
    *
@@ -25,10 +26,11 @@ class MusicSearchAlbumForm extends FormBase {
    * @param $multi
    * @return array
    */
-  private function getAlbumTableselect ($caption, $fields, $required, $multi) {
+  private function getAlbumTableselect($caption, $fields, $required, $multi)
+  {
     $header = [];
     foreach ($fields as $field) {
-      $header[$field] =$this->t(ucfirst($field));
+      $header[$field] = $this->t(ucfirst($field));
     }
 
     return [
@@ -41,11 +43,13 @@ class MusicSearchAlbumForm extends FormBase {
     ];
   }
 
-  public function __construct(MusicSearchService $service) {
+  public function __construct(MusicSearchService $service)
+  {
     $this->service = $service;
   }
 
-  public static function create(ContainerInterface $container) {
+  public static function create(ContainerInterface $container)
+  {
     return new static(
       $container->get('music_search.service')
     );
@@ -54,26 +58,28 @@ class MusicSearchAlbumForm extends FormBase {
   /**
    * {@inheritdoc}
    */
-  public function getFormId() {
+  public function getFormId()
+  {
     return 'music_search_album_form';
   }
 
   /**
    * add album songs in add album form
    */
-  public function addSongsForm(FormStateInterface $form_state, array $spotifySongs, $tableName) {
+  public function addSongsForm(FormStateInterface $form_state, array $spotifySongs, $tableName)
+  {
     /**
      * add songs in add album form
      */
     $songs = array();
 
-      foreach($spotifySongs['tracks'] as $item) {
-        array_push($songs, array(
+    foreach ($spotifySongs['tracks'] as $item) {
+      array_push($songs, array(
           'track_name' => $item['title'],
           'track_length' => $item['duration'],
-          'track_number' =>  $item['position']
-          )
-        );
+          'track_number' => $item['position']
+        )
+      );
     }
 
     $header = array(
@@ -105,10 +111,11 @@ class MusicSearchAlbumForm extends FormBase {
     return $form;
   }
 
-    /**
-     * add album attributes in add album form
-     */
-  public function addAlbumAttributes(FormStateInterface $formState, array $album){
+  /**
+   * add album attributes in add album form
+   */
+  public function addAlbumAttributes(FormStateInterface $formState, array $album)
+  {
     $attributes = array(
       array('name' => 'Genre (discogs)', 'description' => $album['discogs']['genres'], 'uid' => 1),
       array('name' => 'description (discogs)', 'description' => $album['discogs']['description'], 'uid' => 2),
@@ -147,7 +154,8 @@ class MusicSearchAlbumForm extends FormBase {
   /**
    * {@inheritdoc}
    */
-  public function buildForm(array $form, FormStateInterface $form_state) {
+  public function buildForm(array $form, FormStateInterface $form_state)
+  {
     $request = \Drupal::request();
     $discogs_id = $request->query->get('discogs_id');
     $spotify_id = $request->query->get('spotify_id');
@@ -171,18 +179,18 @@ class MusicSearchAlbumForm extends FormBase {
 
     // Generate tableselects
     $form['title'] = $this->getAlbumTableselect('title', ['source', 'title'], TRUE, FALSE);
-    $form['year'] = $this->getAlbumTableselect('year', ['source', 'year'], FALSE, FALSE);
+    $form['released'] = $this->getAlbumTableselect('Released', ['source', 'year'], FALSE, FALSE);
     $form['label'] = $this->getAlbumTableselect('label', ['source', 'label'], FALSE, FALSE);
     $form['genres'] = $this->getAlbumTableselect('genres', ['source', 'genre'], FALSE, TRUE);
     $form['description'] = $this->getAlbumTableselect('description', ['source', 'description'], FALSE, FALSE);
     $form['discogs_tracks'] = $this->getAlbumTableselect('Discogs Tracks', ['number', 'title', 'duration'], FALSE, TRUE);
     $form['spotify_tracks'] = $this->getAlbumTableselect('Spotify Tracks', ['number', 'title', 'duration'], FALSE, TRUE);
-    $form['images'] = $this->getAlbumTableselect('images', ['source', 'image'], FALSE, TRUE);
+    $form['cover'] = $this->getAlbumTableselect('images', ['source', 'image'], FALSE, FALSE);
 
     // Populate tableselects with values
     foreach ($album as $serviceName => $service) {
       $form['title']['#options'][$serviceName] = ['source' => $serviceName, 'title' => $service['title']];
-      $form['year']['#options'][$serviceName] = ['source' => $serviceName, 'year' => $service['year']];
+      $form['released']['#options'][$serviceName] = ['source' => $serviceName, 'year' => $service['year']];
       $form['label']['#options'][$serviceName] = ['source' => $serviceName, 'label' => $service['label']];
       $form['description']['#options'][$serviceName] = ['source' => $serviceName, 'description' => $service['description']];
 
@@ -196,7 +204,7 @@ class MusicSearchAlbumForm extends FormBase {
 
       // Add tracks
       foreach ($service['tracks'] as $track) {
-        $form[$serviceName .'_tracks']['#options'][$track['id']] = [
+        $form[$serviceName . '_tracks']['#options'][$track['id']] = [
           'number' => $track['position'],
           'title' => $track['title'],
           'duration' => $track['duration']
@@ -205,7 +213,7 @@ class MusicSearchAlbumForm extends FormBase {
 
       // Add images
       foreach ($service['images'] as $image) {
-        $form['images']['#options'][$image['url']] = [
+        $form['cover']['#options'][$image['url']] = [
           'source' => $serviceName,
           'image' => [
             'data' => [
@@ -217,50 +225,6 @@ class MusicSearchAlbumForm extends FormBase {
         ];
       }
     }
-    /*
-    $form['genre'] = [
-      '#type' => 'textfield',
-      '#title' => $this->t('genre'),
-      '#description' => $this->t('Please provide the genre'),
-      '#default_value' => ''
-    ];
-
-    $form['releasedate'] = [
-      '#type' => 'textfield',
-      '#title' => $this->t('release date'),
-      '#description' => $this->t('Please provide the release date'),
-      '#default_value' => ''
-    ];
-
-    $form['label'] = [
-      '#type' => 'textfield',
-      '#title' => $this->t('label'),
-      '#description' => $this->t('Please provide the record label'),
-      '#default_value' => ''
-    ];
-*/
-/*
-    $photo[] = $this->service->_save_file(
-      $album['images'][0],
-      'artist_images',
-      'image',
-      $album['name'] . ' - photo',
-      $album['name'] . '_album_photo.jpg'
-    );
-*/
-
-    /*
-    $form['spotifyImages'] = array(
-      '#type' => 'checkbox',
-      '#title' => '<img src="' . $album['spotify']['images'][0]['url'] .'">',
-      '#description' => $this->t('Do you want to add the image'),
-    );
-    $form['discogImage'] = array(
-      '#type' => 'checkbox',
-      '#title' => '<img src="' . $album['discogs']['images'][0]['url'] .'">',
-      '#description' => $this->t('Do you want to add the image'),
-    );
-    */
 
     $form['actions']['submit'] = [
       '#type' => 'submit',
@@ -268,24 +232,16 @@ class MusicSearchAlbumForm extends FormBase {
       '#name' => ''
     ];
 
-    /*
-    return [
-      $form,
-      $this->addAlbumAttributes($form_state, $album),
-      $spotify_id ? $this->addSongsForm($form_state, $album['spotify'], $this->t('Spotify Song List')) : null,
-      $discogs_id ? $this->addSongsForm($form_state, $album['discogs'], $this->t('Discogs Song List')) : null,
-    ]; # parent::buildForm($form, $form_state);
-    */
-
     return $form;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function validateForm(array &$form, FormStateInterface $form_state) {
+  public function validateForm(array &$form, FormStateInterface $form_state)
+  {
     $client_id = $form_state->getValue('artist_name');
-    if(strlen($client_id) > 32) {
+    if (strlen($client_id) > 32) {
       $form_state->setErrorByName('artist_name', $this->t('The artist name is to long'));
     }
 
@@ -293,36 +249,127 @@ class MusicSearchAlbumForm extends FormBase {
   }
 
 
-
   /**
    * {@inheritdoc}
    */
-  public function submitForm(array &$form, FormStateInterface $form_state) {
- /*
+  public function submitForm(array &$form, FormStateInterface $form_state)
+  {
     $request = \Drupal::request();
-    $id = $request->query->get('id');
+    $albumByDiscogsID = [];
+    $albumBySpotifyID = [];
 
-    $album = $this->service->getArtist($id);
+    $discogs_id = $request->query->get('discogs_id');
+    $spotify_id = $request->query->get('spotify_id');
 
-    $test = \Drupal::entityTypeManager()->getStorage('node')->getQuery();
-    $test
-      ->condition('type', 'artist')
-      ->condition('title', $album['name'])
-      ->condition('status', TRUE);
-    $ids = $test->execute();
-    $asdf = \Drupal::entityTypeManager()->getStorage('node')->load(array_pop($ids));
+    $test = \Drupal::entityTypeManager()->getStorage('node')->load(33);
+    $album = $this->service->getAlbum($spotify_id, $discogs_id);
 
+    $formValues = $form_state->getUserInput();
     $values = [
-      'type' => 'artist',
-      'title' => $album['name'],
+      'type' => 'album',
       'status' => TRUE,
+      'title' => $album[$formValues['title']]['title'],
+      'field_discogs_id' => $discogs_id,
+      'field_spotify_id' => $spotify_id,
+      'field_desc' => $album[$formValues['description']]['description'],
+      'field_released' => $album[$formValues['released']]['year'],
     ];
-    $node = \Drupal::entityTypeManager()->getStorage('node')->create($values);
-    $node->save();
- */
- }
 
+    // Define entityTypeManager so we can look for entities
+    $query = \Drupal::entityTypeManager()->getStorage('node')->getQuery();
 
+    if ($discogs_id) {
+      $query
+        ->condition('type', 'album')
+        ->condition('field_discogs_id', $discogs_id);
 
+      $albumByDiscogsID = $query->execute();
+    }
 
+    if ($spotify_id) {
+      $query
+        ->condition('type', 'album')
+        ->condition('field_spotify_id', $spotify_id);
+
+      $albumBySpotifyID = $query->execute();
+    }
+
+    // Concat and get unique entity IDs
+    $albumID = array_unique(array_merge($albumByDiscogsID, $albumBySpotifyID));
+
+    if (sizeof($albumID) <= 1) {
+      $tracks = [];
+      foreach($album as $serviceKey => $service) {
+        foreach ($service['tracks'] as $track) {
+          foreach (array_merge($formValues['discogs_tracks'], $formValues['spotify_tracks']) as $trackID) {
+            if ($track['id'] == $trackID) {
+              $query
+                ->condition('type', 'song')
+                ->condition('field_'. $serviceKey .'_id');
+              $id = $query->execute();
+
+              if (sizeof($id) <= 1) {
+                if (sizeof($id)) {
+                  // TODO: update track
+                  array_push($tracks, ['target_id' => $id]);
+                } else {
+                  // TODO: add track
+                  $trackValues = [
+                    'type' => 'song',
+                    'status' => TRUE,
+                    'title' => $track['title'],
+                    'field_duration' => $track['duration'],
+                    'field_position' => $track['position'],
+                    'field_'. $serviceKey .'_id' => $track['id']
+                  ];
+                  $node = \Drupal::entityTypeManager()->getStorage('node')->create($trackValues);
+                  $node->save();
+
+                  array_push($tracks, ['target_id' => $node->id()]);
+                }
+              } else {
+                // TODO: throw error
+              }
+            }
+          }
+        }
+      }
+
+      $values['field_songs'] = $tracks;
+
+      $images = [
+        'target_id' => $this->service->saveFile(
+          $formValues['cover'],
+          'album_images',
+          'image',
+          $values['title'],
+          basename($formValues['cover']),
+          basename($formValues['cover'])
+        )
+      ];
+
+      $values['field_cover'] = $images;
+
+      // We found either one or zero entities
+      if (sizeof($albumID)) {
+        // We found an entity so we update it
+        // TODO: update album
+        $entity = \Drupal::entityTypeManager()->getStorage('node')->load(reset($albumID));
+        foreach ($values as $key => $value) {
+          $entity->$key = $value;
+        }
+        $entity->save();
+        $id = $entity->id();
+      } else {
+        // We found no entity so we create it
+        // TODO: save album
+        $node = \Drupal::entityTypeManager()->getStorage('node')->create($values);
+        $node->save();
+        $id = $node->id();
+      }
+    } else {
+      // We found multiple entities
+      // TODO: throw error
+    }
+  }
 }
