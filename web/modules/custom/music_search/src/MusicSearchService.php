@@ -164,8 +164,10 @@ class MusicSearchService {
    * @throws EntityStorageException
    */
   function saveFile($url, $folder, $type, $title, $basename, $uid = 1) {
-    if(!is_dir(\Drupal::config('system.file')->get('default_scheme').'://' . $folder)) {
-      return null;
+    $directory = \Drupal::config('system.file')->get('default_scheme').'://' . $folder;
+    if(!is_dir($directory)) {
+      // Create it if it doesn't exist
+      \Drupal::service('file_system')->mkdir($directory);
     }
     $destination = \Drupal::config('system.file')->get('default_scheme').'://' . $folder . '/'.basename($basename);
     if(!file_exists($destination)) {

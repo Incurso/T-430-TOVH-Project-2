@@ -209,7 +209,8 @@ class MusicSearchArtistForm extends FormBase {
         ->condition('field_discogs_id', $discogs_id);
 
       $artistByDiscogsID = $query->execute();
-      $asdf = \Drupal::entityTypeManager()->getStorage('node')->load(reset($artistByDiscogsID));
+      $asdf = \Drupal::entityTypeManager()->getStorage('node')->load(1);
+      $qwerty = \Drupal\media\Entity\Media::load(24);
     }
 
     if ($spotify_id) {
@@ -220,6 +221,52 @@ class MusicSearchArtistForm extends FormBase {
       $artistBySpotifyID = $query->execute();
     }
 
+    // Concat and get unique entity IDs
+    $artistID = array_unique(array_merge($artistByDiscogsID, $artistBySpotifyID));
+
+    if (sizeof($artistID) <= 1) {
+      // TODO: save images as media type
+      $images = [];
+      foreach ($formValues['images'] as $image){
+        if ($image) {
+          array_push($images, [
+            'target_id' => $this->service->saveFile(
+              $image,
+              'artist_images',
+              'image',
+              $values['title'],
+              basename($image),
+              basename($image)
+            )
+          ]);
+        }
+      }
+
+      $values['field_photos'] = $images;
+
+      // We found either one or zero entities
+      if (sizeof($artistID)) {
+        // We found an entity so we update it
+        // TODO: update artist
+        $entity = \Drupal::entityTypeManager()->getStorage('node')->load(reset($artistID));
+        foreach ($values as $key => $value) {
+          $entity->$key = $value;
+        }
+        $entity->save();
+        $id = $entity->id();
+      } else {
+        // We found no entity so we create it
+        // TODO: save artist
+        $node = \Drupal::entityTypeManager()->getStorage('node')->create($values);
+        $node->save();
+        $id = $node->id();
+      }
+    } else {
+      // We found multiple entities
+      // TODO: throw error
+    }
+
+    /*
     if ($artistByDiscogsID === $artistBySpotifyID) {
       // Got the same output from both queries, lets check what we need to do.
       switch(sizeof($artistByDiscogsID)) {
@@ -258,6 +305,7 @@ class MusicSearchArtistForm extends FormBase {
           // TODO: erm... display error?
       }
     }
+    */
 
     /*
     $request = \Drupal::request();
