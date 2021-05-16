@@ -97,14 +97,20 @@ class MusicSearchAlbumForm extends FormBase
       '#type' => 'textfield',
       '#title' => $this->t('spotify_id'),
       '#description' => $this->t('Please provide the spotify id'),
-      '#default_value' => $spotify_id
+      '#default_value' => $spotify_id,
+      '#attributes' => [
+        'disabled' => 'disabled',
+      ],
     ];
 
     $form['discogs_id'] = [
       '#type' => 'textfield',
       '#title' => $this->t('discogs_id'),
       '#description' => $this->t('Please provide the discogs id'),
-      '#default_value' => $discogs_id
+      '#default_value' => $discogs_id,
+      '#attributes' => [
+        'disabled' => 'disabled',
+      ],
     ];
 
     // Generate tableselects

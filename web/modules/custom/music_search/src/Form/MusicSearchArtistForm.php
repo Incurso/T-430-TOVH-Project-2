@@ -90,28 +90,24 @@ class MusicSearchArtistForm extends FormBase {
     // Queries the music api's for the artist's
     $artist = $this->service->getArtist($spotify_id, $discogs_id);
 
-    // Form title field
-    $form['title'] = [
-      '#type' => 'textfield',
-      '#title' => $this->t('Name'),
-      '#description' => $this->t('Please provide the artist name'),
-      '#default_value' => array_key_exists('spotify', $artist) ? $artist['spotify']['name'] : $artist['discogs']['name'],
-    ];
-
     // Form discogs id field
     $form['discogs_id'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Discogs_ID'),
-      '#description' => $this->t('Please provide the discogs id'),
-      '#default_value' => $discogs_id
+      '#default_value' => $discogs_id,
+      '#attributes' => [
+        'disabled' => 'disabled',
+      ],
     ];
 
     // Form spotify id field
     $form['spotify_id'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Spotify_ID'),
-      '#description' => $this->t('Please provide the spotify id'),
-      '#default_value' => $spotify_id
+      '#default_value' => $spotify_id,
+      '#attributes' => [
+        'disabled' => 'disabled',
+      ],
     ];
 
     // Generate selectable tables
