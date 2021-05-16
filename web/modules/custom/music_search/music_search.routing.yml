@@ -26,7 +26,6 @@ music_search.song:
     _title: "Music Search Songs"
   requirements:
     _permission: "access content"
-
 music_search.form:
   path: "/music_search_form"
   defaults:

@@ -25,13 +25,13 @@ class MusicSearchService {
   protected $session;
 
   /**
-   * local discogs Service variable to access the main MusicSearchDiscogs Service
+   * Local discogs Service variable to access the main MusicSearchDiscogs Service
    * @var \Drupal\music_search\MusicSearchDiscogsService
    */
   protected $discogsService;
 
   /**
-   * local spotify Service variable to access the main MusicSearchSpotify Service
+   * Local spotify Service variable to access the main MusicSearchSpotify Service
    * @var \Drupal\music_search\MusicSearchSpotifyService
    */
   protected $spotifyService;
@@ -46,7 +46,7 @@ class MusicSearchService {
    * import the spotify service
    */
   public function __construct(ConfigFactoryInterface $config_factory, MusicSearchDiscogsService $discogs_service, MusicSearchSpotifyService $spotify_service) {
-    // generate the requests, session, config factory and api services
+    // Generate the requests, session, config factory and api services
     $requests = \Drupal::request();
     $this->session = $requests->getSession();
     $this->configFactory = $config_factory;
@@ -55,25 +55,25 @@ class MusicSearchService {
   }
 
   /**
-   * Search function
-   * to run the search queries against the two Music services
+   * function search
+   * To run the search queries against the two Music services
    * @param $query pass in the search query
    * @param $types pass in the types of search (album or artist)
    * @return array|array[] returns arrays of the data returned from the music services
    */
   public function search($query, $types) {
-    // vars to store the service response
+    // Vars to store the service response
     $serviceResponse['discogs'] = $this->discogsService->search($query, $types);
     $serviceResponse['spotify'] = $this->spotifyService->search($query, $types);
 
-    // var to store the response data
+    // Var to store the response data
     $returnData = array(
       'discogs' => array(),
       'spotify' => array(),
     );
 
 
-    // runs through the service responses and generates the tables of data returned from the music API's
+    // Runs through the service responses and generates the tables of data returned from the music API's
     foreach ($serviceResponse as $serviceKey => $serviceValue) {
       foreach ($serviceValue as $typeKey => $typeValue) {
         switch ($typeKey) {
@@ -128,17 +128,17 @@ class MusicSearchService {
   }
 
   /**
-   * getArtist function
-   * get's an artist from the id
+   * function getArtist
+   * Get's an artist from the id
    * @param null $spotify_id passes in the spotify id
    * @param null $discogs_id passes in the dicogs id
    * @return array returns the artist
    */
   public function getArtist($spotify_id = null, $discogs_id = null) {
-    // var to store the service response
+    // Var to store the service response
     $serviceResponse = array();
 
-    // checks if there exists an id in either of the services or both
+    // Checks if there exists an id in either of the services or both
     if ($discogs_id) {
       $serviceResponse['discogs'] = $this->discogsService->getArtist($discogs_id);
     }
@@ -146,22 +146,21 @@ class MusicSearchService {
       $serviceResponse['spotify'] = $this->spotifyService->getArtist($spotify_id);
     }
 
-    // returns the combined results
     return $serviceResponse;
   }
 
   /**
-   * getAlbum function
-   * get's an album from the id
+   * function getAlbum
+   * Get's an album from the id
    * @param null $spotify_id passes in the spotify id
    * @param null $discogs_id passes in the dicogs id
    * @return array returns the artist
    */
   public function getAlbum($spotify_id = null, $discogs_id = null) {
-    // var to store the service response
+    // Var to store the service response
     $serviceResponse = array();
 
-    //checks if there exists an id in either of the services or both
+    // Checks if there exists an id in either of the services or both
     if ($discogs_id) {
       $serviceResponse['discogs'] = $this->discogsService->getAlbum($discogs_id);
     }
@@ -169,14 +168,13 @@ class MusicSearchService {
       $serviceResponse['spotify'] = $this->spotifyService->getAlbum($spotify_id);
     }
 
-    // returns the combined results
     return $serviceResponse;
   }
 
 
   /**
+   * function saveFile
    * Saves a file, based on it's type
-   *
    * @param $url
    *   Full path to the image on the internet
    * @param $folder

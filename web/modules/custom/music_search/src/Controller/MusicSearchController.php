@@ -17,19 +17,19 @@ class MusicSearchController extends ControllerBase
 {
 
   /**
-   * local Search Service variable to access the main MusicSearch Service
+   * Local Search Service variable to access the main MusicSearch Service
    * @var \Drupal\music_search\MusicSearchService
    */
   protected $service;
 
   /**
-   * local Music search form variable to access the main Music Search Form
+   * Local Music search form variable to access the main Music Search Form
    * @var \Drupal\music_search\Form\MusicSearchForm
    */
   protected $searchForm;
 
   /**
-   * local Music List Search form variable to access the main Music Search List Form
+   * Local Music List Search form variable to access the main Music Search List Form
    * @var \Drupal\music_search\Form\MusicSearchListSearchForm
    */
   protected $listForm;
@@ -74,14 +74,14 @@ class MusicSearchController extends ControllerBase
     $request = \Drupal::request();
     $session = $request->getSession();
 
-    // initialize the search results
+    // Initialize the search results
     $searchResults = null;
 
-    // get a search query and search types
+    // Get a search query and search types
     $query = $session->get('search_query');
     $types = $session->get('search_types');
 
-    // store search parameters in session
+    // Store search parameters in session
     if ($request->getMethod() == 'POST') {
       $session->set('search_query', $request->request->get('q'));
       if ($request->request->get('types')) {
@@ -91,7 +91,7 @@ class MusicSearchController extends ControllerBase
       $uri = Url::fromRoute('music_search.search')->toString();
     }
 
-    // generate forms
+    // Generate forms
     $searchForm = \Drupal::formbuilder()->getForm($this->searchForm);
     $listForm = \Drupal::formbuilder()->getForm($this->listForm);
 

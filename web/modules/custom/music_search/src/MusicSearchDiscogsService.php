@@ -27,10 +27,10 @@ class MusicSearchDiscogsService {
   /**
    * MusicSearchService constructor.
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
-   *   The config factory.
+   *  The config factory.
    */
   public function __construct(ConfigFactoryInterface $config_factory) {
-    // create the request and session to pass it to the local session var
+    // Create the request and session to pass it to the local session var
     // and create the config factory
     $requests = \Drupal::request();
     $this->session = $requests->getSession();
@@ -38,21 +38,20 @@ class MusicSearchDiscogsService {
   }
 
   /**
-   * function queryApi
-   * to query the discogs API
+   * Function queryApi
+   * To query the discogs API
    * @param $uri pass in the uri
    * @param $query_params pass in the query parameters
-   * @return mixed|\Psr\Http\Message\StreamInterface
-   * returns the response body
+   * @return mixed|\Psr\Http\Message\StreamInterface returns the response body
    */
   private function queryApi($uri, $query_params = null) {
 
-    // get the configs and secrets from discogs
+    // Get the configs and secrets from discogs
     $config = $this->configFactory->get('music_search_configuration.settings');
     $discogs_key = $config->get('discogs_consumer_key');
     $discogs_secret = $config->get('discogs_consumer_secret');
 
-    // generate the headers
+    // Generate the headers
     $options = array(
       'headers' => array(
         'Accept' => 'application/json',
@@ -61,10 +60,10 @@ class MusicSearchDiscogsService {
       'query' => $query_params
     );
 
-    // store the repsonse from discogs
+    // Store the repsonse from discogs
     $response = \Drupal::httpClient()->get($uri, $options);
 
-    // if query is not successfull
+    // If query is not successfull
     // throw an error
     // and return the request body
     if ($response->getStatusCode() !== 200) {
@@ -82,21 +81,21 @@ class MusicSearchDiscogsService {
 
   /**
    * Function search
-   * to run the search query
+   * To run the search query
    * @param $query pass in the search query(text from the search box)
    * @param $search_type pass in the query types(album or artist)
    * @return array
    */
   public function search($query, $search_type) {
-    // api url and return data
+    // Api url and return data
     $uri = 'https://api.discogs.com/database/search';
     $returnData = array();
 
-    // search type that discogs wants to see and response variables
+    // Search type that discogs wants to see and response variables
     $type = null;
     $response = null;
 
-    // switches on the type of search album or artist
+    // Switches on the type of search album or artist
     // and queries the api
     switch ($search_type) {
       case 'album':
@@ -109,13 +108,13 @@ class MusicSearchDiscogsService {
         break;
     }
 
-    // checks if there exists a search type in the return array
+    // Checks if there exists a search type in the return array
     // if not, pass it to the return array
     if (!array_key_exists($type, $returnData)) {
       $returnData[$type] = array();
     }
 
-    // runs through the api response
+    // Runs through the api response
     // and adds the albums or artists to the return array
     foreach ($response['results'] as $item) {
       switch ($type) {
@@ -141,22 +140,22 @@ class MusicSearchDiscogsService {
   }
 
   /**
-   * function getArtist
-   * to get the artist from the discogs API
+   * Function getArtist
+   * To get the artist from the discogs API
    * @param $id passes in the artist id
    * @return array returns an array of artists
    */
   public function getArtist($id) {
-    // discogs api url
+    // Discogs api url
     $uri = 'https://api.discogs.com/artists/'. $id;
 
-    // query the discogs api with uri and artist id as parameters
+    // Query the discogs api with uri and artist id as parameters
     $response = $this->queryApi($uri);
 
-    // var to store the images
+    // Var to store the images
     $images = array();
 
-    // add the images url's to an array
+    // Add the images url's to an array
     foreach ($response['images'] as $image) {
       array_push($images, array(
         'url' => $image['uri']
@@ -174,31 +173,31 @@ class MusicSearchDiscogsService {
   }
 
   /**
-   * function getAlbum
-   * to get the albums from discogs
+   * Function getAlbum
+   * To get the albums from discogs
    * @param $id passes in the album id
    * @return array returns an array of albums
    */
   public function getAlbum($id) {
-    // discogs api url
+    // Discogs api url
     $uri = 'https://api.discogs.com/masters/'. $id;
 
-    // query the discogs api with uri and album id as parameters
+    // Query the discogs api with uri and album id as parameters
     $response = $this->queryApi($uri);
 
-    // var to store the images
+    // Var to store the images
     $images = array();
 
-    // add the images url's to an array
+    // Add the images url's to an array
     foreach ($response['images'] as $image) {
       array_push($images, array(
         'url' => $image['uri']
       ));
     }
 
-    // var to store the tracks
+    // Var to store the tracks
     $tracks = array();
-    // add the tracks to an array
+    // Add the tracks to an array
     foreach ($response['tracklist'] as $track) {
       array_push($tracks, array(
         'id' => $id .'-'. $track['position'],

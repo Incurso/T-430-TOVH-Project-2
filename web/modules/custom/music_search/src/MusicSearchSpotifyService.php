@@ -26,11 +26,10 @@ class MusicSearchSpotifyService {
 
   /**
    * MusicSearchSpotifyService constructor.
-   * @param ConfigFactoryInterface $config_factory
-   *  the config factory
+   * @param ConfigFactoryInterface $config_factory the config factory
    */
   public function __construct(ConfigFactoryInterface $config_factory) {
-    // create the request and session to pass it to the local session var
+    // Create the request and session to pass it to the local session var
     // and create the config factory
     $requests = \Drupal::request();
     $this->session = $requests->getSession();
@@ -38,8 +37,8 @@ class MusicSearchSpotifyService {
   }
 
   /**
-   * login function
-   * to access the spotify music service api for authentication
+   * Function login
+   * To access the spotify music service api for authentication
    * and get an access token.
    */
   private function login() {
@@ -49,7 +48,7 @@ class MusicSearchSpotifyService {
     $client_secret = $config->get('spotify_client_secret');
     $date = new \DateTime();
 
-    // prepare the header for the spotify api
+    // Prepare the header for the spotify api
     $options = array(
       'headers' => array(
         'Accept' => 'application/json',
@@ -61,7 +60,7 @@ class MusicSearchSpotifyService {
       )
     );
 
-    // the api uri to access spotify api
+    // The api uri to access spotify api
     $uri = 'https://accounts.spotify.com/api/token';
 
     // Authenticate against Spotify
@@ -76,12 +75,12 @@ class MusicSearchSpotifyService {
   }
 
   /**
-   * function tokenExpired
-   * to get a new token when the token has expired
+   * Function tokenExpired
+   * To get a new token when the token has expired
    * @return bool Returns boolean if token is expired or not
    */
   private function tokenExpired() {
-    // gets a new access token and a new time stamp
+    // Gets a new access token and a new time stamp
     $access_token = $this->session->get('spotify_access_token');
     $date = new \DateTime();
 
@@ -93,24 +92,23 @@ class MusicSearchSpotifyService {
   }
 
   /**
-   * function queryApi
-   * to query the spotify API
+   * Function queryApi
+   * To query the spotify API
    * @param $uri pass in the uri
    * @param $query_params pass in the query parameters
-   * @return mixed|\Psr\Http\Message\StreamInterface
-   * returns the response body
+   * @return mixed|\Psr\Http\Message\StreamInterface returns the response body
    */
   private function queryApi($uri, $query_params = null) {
-    // checks if the token is expired
+    // Checks if the token is expired
     // and logs in
     if ($this->tokenExpired()) {
       $this->login();
     }
 
-    // access the token
+    // Access the token
     $token = $this->session->get('spotify_access_token');
 
-    // generate the header for the api query
+    // Generate the header for the api query
     $options = array(
       'headers' => array(
         'Accept' => 'application/json',
@@ -119,10 +117,10 @@ class MusicSearchSpotifyService {
       'query' => $query_params
     );
 
-    // get the response
+    // Get the response
     $response = \Drupal::httpClient()->get($uri, $options);
 
-    // if query is not successfull
+    // If query is not successfull
     // throw an error
     // and return the request body
     if ($response->getStatusCode() !== 200) {
@@ -140,7 +138,7 @@ class MusicSearchSpotifyService {
 
   /**
    * Function search
-   * to run the search query
+   * To run the search query
    * @param $query pass in the search query(text from the search box)
    * @param $types pass in the query types(albums or artists)
    * @return array return an array of items for the search response
@@ -148,20 +146,20 @@ class MusicSearchSpotifyService {
   public function search($query, $types) {
     $uri = 'https://api.spotify.com/v1/search';
 
-    // generate query parameters
+    // Generate query parameters
     $query_params = array(
       'q' => $query,
       'type' => $types
     );
 
-    // create the return data
+    // Create the return data
     $returnData = array();
 
-    // query the spotify api with the parameters
+    // Query the spotify api with the parameters
     $response = $this->queryApi($uri, $query_params);
 
 
-    // run through the response and pass the return items to the return array
+    // Run through the response and pass the return items to the return array
     foreach ($response as $typeKey => $typeValue) {
       if (!array_key_exists($typeKey, $returnData)) {
         $returnData[$typeKey] = array();
@@ -193,22 +191,22 @@ class MusicSearchSpotifyService {
 
 
   /**
-   * function getArtist
-   * to get the artist from the spotify API
+   * Function getArtist
+   * To get the artist from the spotify API
    * @param $id passes in the artist id
    * @return array returns an array of artists
    */
   public function getArtist($id) {
-    // spotify api url
+    // Spotify api url
     $uri = 'https://api.spotify.com/v1/artists/'. $id;
 
-    // query the spotify api with uri and artist id as parameters
+    // Query the spotify api with uri and artist id as parameters
     $response = $this->queryApi($uri);
 
-    // var to store the images
+    // Var to store the images
     $images = array();
 
-    // add the images url's to an array
+    // Add the images url's to an array
     foreach ($response['images'] as $image) {
       array_push($images, array(
         'url' => $image['url']
@@ -227,32 +225,32 @@ class MusicSearchSpotifyService {
   }
 
   /**
-   * function getAlbum
-   * to get the albums from spotify
+   * Function getAlbum
+   * To get the albums from spotify
    * @param $id passes in the album id
    * @return array returns an array of albums
    */
   public function getAlbum($id) {
-    // spotify api url
+    // Spotify api url
     $uri = 'https://api.spotify.com/v1/albums/'. $id;
 
-    // query the spotify api with uri and album id as parameters
+    // Query the spotify api with uri and album id as parameters
     $response = $this->queryApi($uri);
 
-    // var to store the images
+    // Var to store the images
     $images = array();
 
-    // add the images url's to an array
+    // Add the images url's to an array
     foreach ($response['images'] as $image) {
       array_push($images, array(
         'url' => $image['url']
       ));
     }
 
-    // var to store the tracks
+    // Var to store the tracks
     $tracks = array();
 
-    // add the tracks to an array
+    // Add the tracks to an array
     foreach ($response['tracks']['items'] as $track) {
       array_push($tracks, array(
         'id' => $track['id'],
