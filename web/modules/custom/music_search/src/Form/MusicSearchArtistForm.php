@@ -99,17 +99,13 @@ class MusicSearchArtistForm extends FormBase {
       '#default_value' => $spotify_id
     ];
 
-    /*
-     * Generate tableselects
-     */
+    // Generate tableselects
     $form['name'] = $this->getArtistTableselect('name', TRUE, FALSE);
     $form['website'] = $this->getArtistTableselect('website', FALSE, FALSE);
     $form['description'] = $this->getArtistTableselect('description', FALSE, FALSE);
     $form['images'] = $this->getArtistTableselect('image', FALSE, TRUE);
 
-    /*
-     * Populate tableselects with values
-     */
+    // Populate tableselects with values
     foreach ($artist as $serviceName => $service) {
       $form['name']['#options'][$serviceName] = ['source' => $serviceName, 'name' => $service['name']];
       $form['website']['#options'][$serviceName] = ['source' => $serviceName, 'website' => $service['website']];
@@ -127,31 +123,6 @@ class MusicSearchArtistForm extends FormBase {
           ]
         ];
       }
-
-      /*
-      $form[$serviceName .'_name'] = [
-        '#type' => 'textfield',
-        '#title' => $this->t('Name'),
-        //'#description' => $this->t('Please provide the artist name'),
-        '#default_value' => $service['name'],
-      ];
-
-      $form[$serviceName .'_website'] = [
-        '#type' => 'textfield',
-        '#title' => $this->t('website'),
-        //'#description' => $this->t('Please provide the artist name'),
-        '#default_value' => $service['website'],
-      ];
-
-      $form[$serviceName .'_description'] = [
-        '#type' => 'textarea',
-        '#title' => $this->t('Description'),
-        //'#description' => $this->t('Please provide the artist name'),
-        '#default_value' => $service['description'],
-      ];
-
-      $form[$serviceName .'_images'] = $this->imageCheckboxes($serviceName, $service);
-      */
     }
 
     $form['actions']['submit'] = [
