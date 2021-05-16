@@ -45,6 +45,8 @@ ddev export-db > database/database.sql.gz
      - Entity reference to media type image
    - field_songs "songs"
      - 	Entity reference to content type song
+   - field_released "release date"
+     - type Text (plain)
 
 # To use the module
 Module should appear in the main navigation as "Music Search"
@@ -59,4 +61,4 @@ Module should appear in the main navigation as "Music Search"
 4. You will be redirected to a relevant page containing the id's of your selections and information loaded from them.
    1. Select the items you want to add
    2. press save
-5. You will then be redirected back to the new artist or album.
+5. You will then be redirected to the new artist or album.
