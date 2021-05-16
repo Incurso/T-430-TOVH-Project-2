@@ -263,6 +263,8 @@ class MusicSearchArtistForm extends FormBase {
         $node->save();
         $id = $node->id();
       }
+
+      $form_state->setRedirect('/node/' . $id);
     } else {
       // We found multiple entities
       // TODO: throw error

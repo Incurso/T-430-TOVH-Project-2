@@ -47,7 +47,7 @@ class MusicSearchForm extends FormBase {
       '#type' => 'textfield',
       '#title' => $this->t('Search'),
       '#description' => $this->t('Please provide the artist name'),
-      '#default_value' => $query ? $query : 'Metallica'
+      '#default_value' => $query ? $query : ''
     ];
 
     $form['types'] = array(
@@ -79,13 +79,5 @@ class MusicSearchForm extends FormBase {
   }
 
   public function submitForm(array &$form, FormStateInterface $form_state) {
-    /*
-    $this->config('music_search.settings')
-      ->set('artist_name', $form_state->getValue('artist_name'))
-      ->set('album_name', $form_state->getValue('album_name'))
-      ->save();
-    */
-
-    # parent::submitForm($form, $form_state);
   }
 }
