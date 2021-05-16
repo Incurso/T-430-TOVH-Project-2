@@ -296,6 +296,8 @@ class MusicSearchAlbumForm extends FormBase
 
       // We found either one or zero entities
       if (sizeof($albumID)) {
+        $id = null;
+
         // We found an entity so we update it
         // TODO: update album
         $entity = \Drupal::entityTypeManager()->getStorage('node')->load(reset($albumID));
@@ -310,6 +312,10 @@ class MusicSearchAlbumForm extends FormBase
         $node = \Drupal::entityTypeManager()->getStorage('node')->create($values);
         $node->save();
         $id = $node->id();
+      }
+
+      if ($id) {
+        $form_state->setRedirect('entity.node.canonical', ['node' => $id]);
       }
     } else {
       // We found multiple entities

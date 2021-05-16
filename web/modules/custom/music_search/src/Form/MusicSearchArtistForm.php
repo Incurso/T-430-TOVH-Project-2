@@ -250,6 +250,8 @@ class MusicSearchArtistForm extends FormBase {
       // If there already exists an entity
       // then we update it
       if (sizeof($artistID)) {
+        $id = null;
+
         // We found an entity so we update it
         $entity = \Drupal::entityTypeManager()->getStorage('node')->load(reset($artistID));
         foreach ($values as $key => $value) {
@@ -262,6 +264,10 @@ class MusicSearchArtistForm extends FormBase {
         $node = \Drupal::entityTypeManager()->getStorage('node')->create($values);
         $node->save();
         $id = $node->id();
+      }
+
+      if ($id) {
+        $form_state->setRedirect('entity.node.canonical', ['node' => $id]);
       }
     } else {
       // We found multiple entities
