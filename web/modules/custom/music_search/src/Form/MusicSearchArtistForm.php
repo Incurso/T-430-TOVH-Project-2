@@ -19,6 +19,37 @@ class MusicSearchArtistForm extends FormBase {
    */
   protected $service;
 
+  private function imageCheckboxes ($service_name, $artist) {
+    if (!array_key_exists('images', $artist)) {
+      return null;
+    }
+
+    $images = array();
+    foreach ($artist['images'] as $image) {
+      $images[$image['url']] = '<img width="150" height="auto" src="'. $image['url'] .'" />';
+    }
+
+    return array(
+      '#type' => 'checkboxes',
+      '#title' => $this->t(ucfirst($service_name) .' Images'),
+      '#options' => $images,
+    );
+  }
+
+  private function getArtistTableselect ($field, $required, $multi) {
+    return [
+      '#type' => 'tableselect',
+      '#caption' => $this->t(ucfirst($field) . ($multi ? 's' : '')), # Add s if we are using multiselect
+      '#required' => $required,
+      '#multiple' => $multi,
+      '#header' => [
+        'source' => $this->t('Source'),
+        $field => $this->t(ucfirst($field)),
+      ],
+      '#options' => [],
+    ];
+  }
+
   public function __construct(MusicSearchService $service) {
     $this->service = $service;
   }
@@ -41,20 +72,17 @@ class MusicSearchArtistForm extends FormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
     $request = \Drupal::request();
-    $session = $request->getSession();
+
     $discogs_id = $request->query->get('discogs_id');
     $spotify_id = $request->query->get('spotify_id');
 
     $artist = $this->service->getArtist($spotify_id, $discogs_id);
 
-    $query = $session->get('search_query');
-    $types = $session->get('search_types');
-
     $form['title'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Name'),
       '#description' => $this->t('Please provide the artist name'),
-      # '#default_value' => $artist['name']
+      '#default_value' => array_key_exists('spotify', $artist) ? $artist['spotify']['name'] : $artist['discogs']['name'],
     ];
 
     $form['discogs_id'] = [
@@ -72,22 +100,59 @@ class MusicSearchArtistForm extends FormBase {
     ];
 
     /*
-    $photo[] = $this->service->saveFile(
-      $artist['images'][0],
-      'artist_images',
-      'image',
-      $artist['name'] . ' - photo',
-      $artist['name'] . '_band_photo.jpg'
-    );
-    */
+     * Generate tableselects
+     */
+    $form['name'] = $this->getArtistTableselect('name', TRUE, FALSE);
+    $form['website'] = $this->getArtistTableselect('website', FALSE, FALSE);
+    $form['description'] = $this->getArtistTableselect('description', FALSE, FALSE);
+    $form['images'] = $this->getArtistTableselect('image', FALSE, TRUE);
 
     /*
-    $form['images'] = array(
-      '#type' => 'checkbox',
-      '#title' => '<img src="' . $artist['images'][1]['url'] .'">',
-      '#description' => $this->t('Do you want to add the image'),
-    );
-    */
+     * Populate tableselects with values
+     */
+    foreach ($artist as $serviceName => $service) {
+      $form['name']['#options'][$serviceName] = ['source' => $serviceName, 'name' => $service['name']];
+      $form['website']['#options'][$serviceName] = ['source' => $serviceName, 'website' => $service['website']];
+      $form['description']['#options'][$serviceName] = ['source' => $serviceName, 'description' => $service['description']];
+
+      foreach ($service['images'] as $image) {
+        $form['images']['#options'][$image['url']] = [
+          'source' => $serviceName,
+          'image' => [
+            'data' => [
+              '#theme' => 'image',
+              '#width' => '150',
+              '#uri' => $image['url']
+            ]
+          ]
+        ];
+      }
+
+      /*
+      $form[$serviceName .'_name'] = [
+        '#type' => 'textfield',
+        '#title' => $this->t('Name'),
+        //'#description' => $this->t('Please provide the artist name'),
+        '#default_value' => $service['name'],
+      ];
+
+      $form[$serviceName .'_website'] = [
+        '#type' => 'textfield',
+        '#title' => $this->t('website'),
+        //'#description' => $this->t('Please provide the artist name'),
+        '#default_value' => $service['website'],
+      ];
+
+      $form[$serviceName .'_description'] = [
+        '#type' => 'textarea',
+        '#title' => $this->t('Description'),
+        //'#description' => $this->t('Please provide the artist name'),
+        '#default_value' => $service['description'],
+      ];
+
+      $form[$serviceName .'_images'] = $this->imageCheckboxes($serviceName, $service);
+      */
+    }
 
     $form['actions']['submit'] = [
       '#type' => 'submit',
@@ -114,7 +179,87 @@ class MusicSearchArtistForm extends FormBase {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
- /*
+    $request = \Drupal::request();
+    $artistByDiscogsID = null;
+    $artistBySpotifyID = null;
+
+    $discogs_id = $request->query->get('discogs_id');
+    $spotify_id = $request->query->get('spotify_id');
+
+    $artist = $this->service->getArtist($spotify_id, $discogs_id);
+
+    $formValues = $form_state->getUserInput();
+    $values = [
+      'type' => 'artist',
+      'status' => TRUE,
+      'title' => $artist[$formValues['name']]['name'],
+      'field_discogs_id' => $discogs_id,
+      'field_spotify_id' => $spotify_id,
+      'field_desc' => $artist[$formValues['description']]['description'],
+      'field_website' => $artist[$formValues['website']]['website'],
+      //'field_photos' => [],
+    ];
+
+    // Define entityTypeManager so we can look for entitys
+    $query = \Drupal::entityTypeManager()->getStorage('node')->getQuery();
+
+    if ($discogs_id) {
+      $query
+        ->condition('type', 'artist')
+        ->condition('field_discogs_id', $discogs_id);
+
+      $artistByDiscogsID = $query->execute();
+      $asdf = \Drupal::entityTypeManager()->getStorage('node')->load(reset($artistByDiscogsID));
+    }
+
+    if ($spotify_id) {
+      $query
+        ->condition('type', 'artist')
+        ->condition('field_spotify_id', $spotify_id);
+
+      $artistBySpotifyID = $query->execute();
+    }
+
+    if ($artistByDiscogsID === $artistBySpotifyID) {
+      // Got the same output from both queries, lets check what we need to do.
+      switch(sizeof($artistByDiscogsID)) {
+        case 0: // Found no artis
+          // TODO: add artist
+          $node = \Drupal::entityTypeManager()->getStorage('node')->create($values);
+          $node->save();
+          $id = $node->id();
+          break;
+        case 1: // Found one artist
+          // TODO: update artist
+          $entity = \Drupal::entityTypeManager()->getStorage('node')->load(reset($artistByDiscogsID));
+          foreach ($values as $key => $value) {
+            $entity->$key = $value;
+          }
+          $entity->save();
+          break;
+        default: // Found multiple artists
+          // TODO: erm... display error?
+      }
+    } else {
+      // Got different outputs from the queries, at least that means we found something.
+      switch (sizeof($artistByDiscogsID)) {
+        case 0: // Did not find any artist by discogs_id
+          switch (sizeof($artistBySpotifyID)) {
+            case 1: // Found one artist by spotify_id
+            // TODO: update artist
+            default: // Found multiple artists by spotify_id
+            // TODO: erm... display error?
+          }
+          break;
+        case 1: // Found one artist by discogs_id
+          // TODO: update artist
+          break;
+        default: // Found multiple artists by discogs_id
+          // TODO: erm... display error?
+      }
+    }
+
+    /*
     $request = \Drupal::request();
     $id = $request->query->get('id');
 
@@ -138,7 +283,7 @@ class MusicSearchArtistForm extends FormBase {
     ];
     $node = \Drupal::entityTypeManager()->getStorage('node')->create($values);
     $node->save();
- */
+    */
  }
 
 

@@ -134,10 +134,16 @@ class MusicSearchDiscogsService {
 
     $response = $this->query_api($uri);
 
+    $images = array();
+    foreach ($response['images'] as $image) {
+      array_push($images, array(
+        'url' => $image['uri']
+      ));
+    }
     $returnData = array(
       'id' => $response['id'],
       'name' => $response['name'],
-      'images' => $response['images'],
+      'images' => $images,
       'description' => $response['profile'],
       'website' => reset($response['urls'])
     );
