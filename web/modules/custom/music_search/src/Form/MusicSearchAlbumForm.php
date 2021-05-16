@@ -9,22 +9,24 @@ use Drupal\music_search\MusicSearchService;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * search form for the main music search
+ * Class MusicSearchAlbumForm
+ * @package Drupal\music_search\Form
  */
 class MusicSearchAlbumForm extends FormBase
 {
   /**
    * The Music Search Album Service
-   *
    * @var \Drupal\music_search\MusicSearchService
    */
   protected $service;
 
   /**
-   * @param $field
-   * @param $required
-   * @param $multi
-   * @return array
+   * Function getAlbumTableSelect
+   * to generate a table of albums with selectable rows
+   * @param $field passes in the fields for the table
+   * @param $required passes in weather or not the selection is required
+   * @param $multi passes in weather or not it is multi select
+   * @return array returns an album table
    */
   private function getAlbumTableselect($caption, $fields, $required, $multi)
   {
@@ -43,11 +45,21 @@ class MusicSearchAlbumForm extends FormBase
     ];
   }
 
+  /**
+   * MusicSearchAlbumForm constructor.
+   * @param MusicSearchService $service
+   */
   public function __construct(MusicSearchService $service)
   {
     $this->service = $service;
   }
 
+  /**
+   * Create container function
+   * Dependency Injection of the music_search services
+   * @param ContainerInterface $container
+   * @return MusicSearchAlbumForm|static
+   */
   public static function create(ContainerInterface $container)
   {
     return new static(
@@ -56,7 +68,9 @@ class MusicSearchAlbumForm extends FormBase
   }
 
   /**
+   * Function getFormId
    * {@inheritdoc}
+   * @return string return the form id
    */
   public function getFormId()
   {
@@ -64,95 +78,11 @@ class MusicSearchAlbumForm extends FormBase
   }
 
   /**
-   * add album songs in add album form
-   */
-  public function addSongsForm(FormStateInterface $form_state, array $spotifySongs, $tableName)
-  {
-    /**
-     * add songs in add album form
-     */
-    $songs = array();
-
-    foreach ($spotifySongs['tracks'] as $item) {
-      array_push($songs, array(
-          'track_name' => $item['title'],
-          'track_length' => $item['duration'],
-          'track_number' => $item['position']
-        )
-      );
-    }
-
-    $header = array(
-      'track_number' => t('Track Number'),
-      'track_name' => t('Track Name'),
-      'track_length' => t('Track Length'),
-    );
-    $options = array();
-
-    foreach ($songs as $song) {
-      $options[$song['track_number']] = array(
-        'track_number' => $song['track_number'],
-        'track_name' => $song['track_name'],
-        'track_length' => $song['track_length'],
-      );
-    }
-    $form['table'] = array(
-      '#caption' => $tableName,
-      '#header' => $header,
-      '#empty' => t('No users found'),
-      '#type' => 'tableselect',
-      '#options' => $options,
-    );
-    $form['submit'] = array(
-      '#type' => 'submit',
-      '#value' => t('Add Songs'),
-    );
-
-    return $form;
-  }
-
-  /**
-   * add album attributes in add album form
-   */
-  public function addAlbumAttributes(FormStateInterface $formState, array $album)
-  {
-    $attributes = array(
-      array('name' => 'Genre (discogs)', 'description' => $album['discogs']['genres'], 'uid' => 1),
-      array('name' => 'description (discogs)', 'description' => $album['discogs']['description'], 'uid' => 2),
-      array('name' => 'Label (discogs)', 'description' => $album['discogs']['label'], 'uid' => 3),
-      array('name' => 'Release Date (discogs)', 'description' => $album['discogs']['year'], 'uid' => 4),
-      array('name' => 'Release Date (spotify)', 'description' => $album['spotify']['year'], 'uid' => 5),
-    );
-    $options = array();
-
-    $header = array(
-      'name' => t('Name'),
-      'description' => t('Description'),
-    );
-
-    foreach ($attributes as $attribute) {
-      $options[$attribute['uid']] = array(
-        'name' => $attribute['name'],
-        'description' => $attribute['description'],
-      );
-    }
-    $form['table'] = array(
-      '#caption' => $this->t('Add items from services'),
-      '#empty' => t('No users found'),
-      '#header' => $header,
-      '#type' => 'tableselect',
-      '#options' => $options,
-    );
-    $form['submit'] = array(
-      '#type' => 'submit',
-      '#value' => t('Add Attributes'),
-    );
-
-    return $form;
-  }
-
-  /**
-   * {@inheritdoc}
+   * Function buildForm
+   * to build the Album form
+   * @param array $form passes in the form data
+   * @param FormStateInterface $form_state passes in the form state
+   * @return array returns the form
    */
   public function buildForm(array $form, FormStateInterface $form_state)
   {
@@ -242,6 +172,9 @@ class MusicSearchAlbumForm extends FormBase
   }
 
   /**
+   * Function validateForm
+   * @param array $form passes in the form data
+   * @param FormStateInterface $form_state passes in the form state
    * {@inheritdoc}
    */
   public function validateForm(array &$form, FormStateInterface $form_state)
@@ -254,8 +187,13 @@ class MusicSearchAlbumForm extends FormBase
     parent::validateForm($form, $form_state);
   }
 
-
   /**
+   * Function submitForm
+   * @param array $form passes in the form data
+   * @param FormStateInterface $form_state passes in the form state
+   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
+   * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
+   * @throws \Drupal\Core\Entity\EntityStorageException
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state)

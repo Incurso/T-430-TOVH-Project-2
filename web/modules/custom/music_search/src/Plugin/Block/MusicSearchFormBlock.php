@@ -8,8 +8,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\music_search\Form\MusicSearchForm;
 
 /**
- * Hello World Salutation block.
- *
+ * MusicSearcFormBlock
  * @Block(
  *  id = "music_search_form_block",
  *  admin_label = @Translation("Music Service Search"),
@@ -22,7 +21,7 @@ class MusicSearchFormBlock extends BlockBase implements ContainerFactoryPluginIn
   protected $searchForm;
 
   /**
-   * HelloWorldSalutationBlock constructor.
+   * MusicSearchFormBlock constructor.
    * @param array $configuration
    *  A configuration array containing information about the plugin interface.
    * @param $plugin_id
@@ -30,11 +29,10 @@ class MusicSearchFormBlock extends BlockBase implements ContainerFactoryPluginIn
    * @param $plugin_definition
    *  The plugins implementation definition.
    * @param MusicSearchForm $searchForm
-   *  The salutation service
+   * Music search form
    */
   public function __construct(array $configuration, $plugin_id, $plugin_definition, MusicSearchForm $searchForm) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
-
     $this->searchForm = $searchForm;
   }
 

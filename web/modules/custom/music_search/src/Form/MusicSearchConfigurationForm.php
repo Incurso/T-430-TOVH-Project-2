@@ -6,11 +6,13 @@ use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 
 /**
- * Configuration form definition for the salutation message
+ * Class MusicSearchConfigurationForm
+ * @package Drupal\music_search\Form
  */
 class MusicSearchConfigurationForm extends ConfigFormBase {
   /**
-   * {@inheritdoc}
+   * Function getEditableConfigNames
+   * @return string[] returns the config names
    */
   protected function getEditableConfigNames() {
     return [
@@ -19,14 +21,19 @@ class MusicSearchConfigurationForm extends ConfigFormBase {
   }
 
   /**
-   * {@inheritdoc}
+   * Function getFormId
+   * @return string returns name of the form
    */
   public function getFormId() {
     return 'music_search_configuration_form';
   }
 
   /**
-   * {@inheritdoc}
+   * Function buildForm
+   * to build the configuration form
+   * @param array $form passes in the form data
+   * @param FormStateInterface $form_state passes in the form state
+   * @return array returns the form
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
     $config = $this->config('music_search_configuration.settings');
@@ -63,6 +70,9 @@ class MusicSearchConfigurationForm extends ConfigFormBase {
   }
 
   /**
+   * Function validateForm
+   * @param array $form passes in the form data
+   * @param FormStateInterface $form_state passes in the form state
    * {@inheritdoc}
    */
   public function validateForm(array &$form, FormStateInterface $form_state) {
@@ -75,6 +85,12 @@ class MusicSearchConfigurationForm extends ConfigFormBase {
   }
 
   /**
+   * Function submitForm
+   * @param array $form passes in the form data
+   * @param FormStateInterface $form_state passes in the form state
+   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
+   * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
+   * @throws \Drupal\Core\Entity\EntityStorageException
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {

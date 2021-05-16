@@ -9,12 +9,18 @@ use Drupal\music_search\MusicSearchService;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * search form for the main music search
+ * Class MusicSearchListSearchForm
+ * @package Drupal\music_search\Form
  */
 class MusicSearchListSearchForm extends FormBase {
-  protected $service;
   /**
-   * {@inheritdoc}
+   * @var \Drupal\music_search\MusicSearchService
+   */
+  protected $service;
+
+  /**
+   * Function getEditableConfigNames
+   * @return string[] returns the config names
    */
   protected function getEditableConfigNames() {
     return [
@@ -22,11 +28,18 @@ class MusicSearchListSearchForm extends FormBase {
     ];
   }
 
-
+  /**
+   * MusicSearchListSearchForm constructor.
+   * @param MusicSearchService $service
+   */
   public function __construct(MusicSearchService $service) {
     $this->service = $service;
   }
 
+  /**
+   * @param ContainerInterface $container
+   * @return MusicSearchListSearchForm|static
+   */
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('music_search.service')
@@ -34,14 +47,19 @@ class MusicSearchListSearchForm extends FormBase {
   }
 
   /**
-   * {@inheritdoc}
+   * Function getFormId
+   * @return string returns name of the form
    */
   public function getFormId() {
     return 'music_search_list_form';
   }
 
   /**
-   * {@inheritdoc}
+   * Function buildForm
+   * to build the configuration form
+   * @param array $form passes in the form data
+   * @param FormStateInterface $form_state passes in the form state
+   * @return array returns the form
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
     $request = \Drupal::request();
@@ -70,6 +88,9 @@ class MusicSearchListSearchForm extends FormBase {
   }
 
   /**
+   * Function validateForm
+   * @param array $form passes in the form data
+   * @param FormStateInterface $form_state passes in the form state
    * {@inheritdoc}
    */
   public function validateForm(array &$form, FormStateInterface $form_state) {
@@ -82,6 +103,12 @@ class MusicSearchListSearchForm extends FormBase {
   }
 
   /**
+   * Function submitForm
+   * @param array $form passes in the form data
+   * @param FormStateInterface $form_state passes in the form state
+   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
+   * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
+   * @throws \Drupal\Core\Entity\EntityStorageException
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {

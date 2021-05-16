@@ -9,20 +9,28 @@ use Drupal\music_search\MusicSearchService;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * search form for the main music search
+ * Class MusicSearchSongForm
+ * @package Drupal\music_search\Form
  */
 class MusicSearchSongForm extends FormBase {
   /**
    * The Music Search Song Service
-   *
    * @var \Drupal\music_search\MusicSearchService
    */
   protected $service;
 
+  /**
+   * MusicSearchSongForm constructor.
+   * @param MusicSearchService $service
+   */
   public function __construct(MusicSearchService $service) {
     $this->service = $service;
   }
 
+  /**
+   * @param ContainerInterface $container
+   * @return MusicSearchSongForm|static
+   */
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('music_search.service')
@@ -30,14 +38,19 @@ class MusicSearchSongForm extends FormBase {
   }
 
   /**
-   * {@inheritdoc}
+   * Function getFormId
+   * @return string returns name of the form
    */
   public function getFormId() {
     return 'music_search_artist_form';
   }
 
   /**
-   * {@inheritdoc}
+   * Function buildForm
+   * to build the configuration form
+   * @param array $form passes in the form data
+   * @param FormStateInterface $form_state passes in the form state
+   * @return array returns the form
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
     $request = \Drupal::request();

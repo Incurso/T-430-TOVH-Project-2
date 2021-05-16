@@ -24,7 +24,7 @@ class MusicSearchArtistForm extends FormBase {
    * Function getArtistTableSelect
    * to generate a table of artists with selectable rows
    * @param $field passes in the fields for the table
-   * @param $required passes in weater or not the selection is required
+   * @param $required passes in weather or not the selection is required
    * @param $multi passes in weather or not it is multi select
    * @return array returns an artist table
    */
