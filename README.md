@@ -11,7 +11,7 @@ ddev start
 # To export database run
 ddev export-db > database/database.sql.gz
 
-# To use the Module.
+# To set up the module.
 1. add the music_search module to web/modules/custom/ folder
 2. run the command ddev drush en music_search
 3. Create the content type Artist and the custom fields
