@@ -1,0 +1,24 @@
+<?php
+
+/**
+ * @file
+ * Music Search module file.
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\Core\Render\BubbleableMetadata;
+
+/**
+ * Implements hook_help().
+ */
+function music_search_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    case 'help.page.music_search':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('This is a music search module.') . '</p>';
+      return $output;
+
+    default:
+  }
+}

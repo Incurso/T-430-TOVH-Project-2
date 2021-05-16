@@ -1,0 +1,6 @@
+music_search.search:
+  title: 'Music Search'
+  description: 'Search for music'
+  route_name: music_search.search
+  menu_name: main
+  weight: 0

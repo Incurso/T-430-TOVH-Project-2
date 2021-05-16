@@ -1,0 +1,49 @@
+music_search.search:
+  path: "/music_search"
+  defaults:
+    _controller: Drupal\music_search\Controller\MusicSearchController::musicSearch
+    _title: "Music Search"
+  requirements:
+    _permission: "access content"
+music_search.artist:
+  path: "/music_search/artist"
+  defaults:
+    _form: Drupal\music_search\Form\MusicSearchArtistForm
+    _title: "Music Search Artist"
+  requirements:
+    _permission: "access content"
+music_search.album:
+  path: "/music_search/album"
+  defaults:
+    _form: Drupal\music_search\Form\MusicSearchAlbumForm
+    _title: "Music Search Album"
+  requirements:
+    _permission: "access content"
+music_search.song:
+  path: "/music_search/song"
+  defaults:
+    _form: Drupal\music_search\Form\MusicSearchSongForm
+    _title: "Music Search Songs"
+  requirements:
+    _permission: "access content"
+music_search.form:
+  path: "/music_search_form"
+  defaults:
+    _form: Drupal\music_search\Form\MusicSearchForm
+    _title: "Music Search form"
+  requirements:
+    _permission: "access content"
+music_search_list.form:
+  path: "/music_search_form"
+  defaults:
+    _form: Drupal\music_search\Form\MusicSearchListSearchForm
+    _title: "Music Search List form"
+  requirements:
+    _permission: "access content"
+music_search.configuration_form:
+  path: "/admin/config/music-search-configuration"
+  defaults:
+    _form: Drupal\music_search\Form\MusicSearchConfigurationForm
+    _title: "Music Search configuration"
+  requirements:
+    _permission: "administer site configuration"
