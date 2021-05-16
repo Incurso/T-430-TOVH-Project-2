@@ -19,23 +19,12 @@ class MusicSearchArtistForm extends FormBase {
    */
   protected $service;
 
-  private function imageCheckboxes ($service_name, $artist) {
-    if (!array_key_exists('images', $artist)) {
-      return null;
-    }
-
-    $images = array();
-    foreach ($artist['images'] as $image) {
-      $images[$image['url']] = '<img width="150" height="auto" src="'. $image['url'] .'" />';
-    }
-
-    return array(
-      '#type' => 'checkboxes',
-      '#title' => $this->t(ucfirst($service_name) .' Images'),
-      '#options' => $images,
-    );
-  }
-
+  /**
+   * @param $field
+   * @param $required
+   * @param $multi
+   * @return array
+   */
   private function getArtistTableselect ($field, $required, $multi) {
     return [
       '#type' => 'tableselect',
