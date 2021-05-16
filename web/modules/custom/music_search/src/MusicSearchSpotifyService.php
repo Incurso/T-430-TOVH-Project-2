@@ -6,7 +6,8 @@ use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 
 /**
- * Prepares the salutation to the world.
+ * Class MusicSearchSpotifyService
+ * @package Drupal\music_search
  */
 class MusicSearchSpotifyService {
 
@@ -14,51 +15,41 @@ class MusicSearchSpotifyService {
 
   /**
    * The config factory.
-   *
    * @var \Drupal\Core\Config\ConfigFactoryInterface
    */
   protected $configFactory;
 
   /**
-   * The event dispatcher.
-   *
-   * @var \Symfony\Component\EventDispatcher\EventDispatcherInterface
-   */
-  protected $eventDispatcher;
-
-  /**
    * The session variable to keep the api tokens from music apis intact and refresh them when they've expired.
-   *
    */
   protected $session;
 
   /**
-   * MusicSearchService constructor.
-   *
-   * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
-   *   The config factory.
-   * @param \Symfony\Component\EventDispatcher\EventDispatcherInterface $eventDispatcher
-   *   The event dispatcher.
+   * MusicSearchSpotifyService constructor.
+   * @param ConfigFactoryInterface $config_factory
+   *  the config factory
    */
   public function __construct(ConfigFactoryInterface $config_factory) {
+    // create the request and session to pass it to the local session var
+    // and create the config factory
     $requests = \Drupal::request();
     $this->session = $requests->getSession();
     $this->configFactory = $config_factory;
   }
 
   /**
-   * Returns access token
+   * login function
+   * to access the spotify music service api for authentication
+   * and get an access token.
    */
   private function login() {
-    #$request = \Drupal::request();
-    #$session = $request->getSession();
-    #$access_token = $session->get('spotify_access_token');
-    $access_token = $this->session->get('spotify_access_token');
+    // get configs and sercrets and the current timestamp
     $config = $this->configFactory->get('music_search.settings');
     $client_id = $config->get('spotify_client_id');
     $client_secret = $config->get('spotify_client_secret');
     $date = new \DateTime();
 
+    // prepare the header for the spotify api
     $options = array(
       'headers' => array(
         'Accept' => 'application/json',
@@ -70,26 +61,27 @@ class MusicSearchSpotifyService {
       )
     );
 
+    // the api uri to access spotify api
     $uri = 'https://accounts.spotify.com/api/token';
 
-    # TODO: Attempt login
-    # Authenticate against Spotify
+    // Authenticate against Spotify
     $response = \Drupal::httpClient()->post($uri, $options);
 
-    # Assume we get access token as a response
+    // Assume we get access token as a response
     $access_token = \json_decode($response->getBody(), true);
-    # Add issued_at to simplify expiration checks
+    // Add issued_at to simplify expiration checks
     $access_token['issued_at'] = $date->getTimestamp();
-    # Store access token in session
+    // Store access token in session
     $this->session->set('spotify_access_token', $access_token);
   }
 
   /**
-   * Returns boolean if token is expired or not
+   * function tokenExpired
+   * to get a new token when the token has expired
+   * @return bool Returns boolean if token is expired or not
    */
-  private function token_expired() {
-    #$request = \Drupal::request();
-    #$session = $request->getSession();
+  private function tokenExpired() {
+    // gets a new access token and a new time stamp
     $access_token = $this->session->get('spotify_access_token');
     $date = new \DateTime();
 
@@ -101,17 +93,24 @@ class MusicSearchSpotifyService {
   }
 
   /**
-   * @param $uri
-   * @param $query_params
+   * function queryApi
+   * to query the spotify API
+   * @param $uri pass in the uri
+   * @param $query_params pass in the query parameters
    * @return mixed|\Psr\Http\Message\StreamInterface
+   * returns the response body
    */
-  private function query_api($uri, $query_params = null) {
-    if ($this->token_expired()) {
+  private function queryApi($uri, $query_params = null) {
+    // checks if the token is expired
+    // and logs in
+    if ($this->tokenExpired()) {
       $this->login();
     }
 
+    // access the token
     $token = $this->session->get('spotify_access_token');
 
+    // generate the header for the api query
     $options = array(
       'headers' => array(
         'Accept' => 'application/json',
@@ -120,8 +119,12 @@ class MusicSearchSpotifyService {
       'query' => $query_params
     );
 
+    // get the response
     $response = \Drupal::httpClient()->get($uri, $options);
 
+    // if query is not successfull
+    // throw an error
+    // and return the request body
     if ($response->getStatusCode() !== 200) {
       $message = 'Status: '. $response->getStatusCode();
       $message .= ' Reason: '. $response->getReasonPhrase();
@@ -136,21 +139,29 @@ class MusicSearchSpotifyService {
   }
 
   /**
-   * @param $query
-   * @param $types
-   * @return mixed|\Psr\Http\Message\StreamInterface
+   * Function search
+   * to run the search query
+   * @param $query pass in the search query(text from the search box)
+   * @param $types pass in the query types(albums or artists)
+   * @return array return an array of items for the search response
    */
   public function search($query, $types) {
     $uri = 'https://api.spotify.com/v1/search';
+
+    // generate query parameters
     $query_params = array(
       'q' => $query,
       'type' => $types
     );
 
+    // create the return data
     $returnData = array();
 
-    $response = $this->query_api($uri, $query_params);
+    // query the spotify api with the parameters
+    $response = $this->queryApi($uri, $query_params);
 
+
+    // run through the response and pass the return items to the return array
     foreach ($response as $typeKey => $typeValue) {
       if (!array_key_exists($typeKey, $returnData)) {
         $returnData[$typeKey] = array();
@@ -180,12 +191,24 @@ class MusicSearchSpotifyService {
     return $returnData;
   }
 
+
+  /**
+   * function getArtist
+   * to get the artist from the spotify API
+   * @param $id passes in the artist id
+   * @return array returns an array of artists
+   */
   public function getArtist($id) {
+    // spotify api url
     $uri = 'https://api.spotify.com/v1/artists/'. $id;
 
-    $response = $this->query_api($uri);
+    // query the spotify api with uri and artist id as parameters
+    $response = $this->queryApi($uri);
 
+    // var to store the images
     $images = array();
+
+    // add the images url's to an array
     foreach ($response['images'] as $image) {
       array_push($images, array(
         'url' => $image['url']
@@ -203,19 +226,33 @@ class MusicSearchSpotifyService {
     return $returnData;
   }
 
+  /**
+   * function getAlbum
+   * to get the albums from spotify
+   * @param $id passes in the album id
+   * @return array returns an array of albums
+   */
   public function getAlbum($id) {
+    // spotify api url
     $uri = 'https://api.spotify.com/v1/albums/'. $id;
 
-    $response = $this->query_api($uri);
+    // query the spotify api with uri and album id as parameters
+    $response = $this->queryApi($uri);
 
+    // var to store the images
     $images = array();
+
+    // add the images url's to an array
     foreach ($response['images'] as $image) {
       array_push($images, array(
         'url' => $image['url']
       ));
     }
 
+    // var to store the tracks
     $tracks = array();
+
+    // add the tracks to an array
     foreach ($response['tracks']['items'] as $track) {
       array_push($tracks, array(
         'id' => $track['id'],

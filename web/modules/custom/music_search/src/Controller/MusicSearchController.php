@@ -1,6 +1,5 @@
 <?php
 
-
 namespace Drupal\music_search\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
@@ -11,38 +10,38 @@ use Drupal\music_search\MusicSearchService;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Controller for the salutation message.
+ * Controller for the Music Search Module
+ * Inherits from the Drupal ControllerBase
  */
 class MusicSearchController extends ControllerBase
 {
 
   /**
-   * SpotifySearchService
-   *
+   * local Search Service variable to access the main MusicSearch Service
    * @var \Drupal\music_search\MusicSearchService
    */
   protected $service;
 
   /**
-   * The search form
+   * local Music search form variable to access the main Music Search Form
    * @var \Drupal\music_search\Form\MusicSearchForm
    */
   protected $searchForm;
 
   /**
+   * local Music List Search form variable to access the main Music Search List Form
    * @var \Drupal\music_search\Form\MusicSearchListSearchForm
    */
   protected $listForm;
 
   /**
    * MusicSearchController constructor.
-   *
    * @param \Drupal\music_search\MusicSearchService $service
-   * The spotify search service.
-   * @param \Drupal\music_search\DiscogsSearchService $discogsService
-   * the discogs search service
+   * The main search service.
    * @param \Drupal\music_search\Form\MusicSearchForm $searchForm
-   * the search form
+   * the main search form
+   * @param \Drupal\music_search\Form\MusicSearchListSearchForm $list_form
+   * the main music list form
    */
   public function __construct(MusicSearchService $service, MusicSearchForm $search_form, MusicSearchListSearchForm $list_form) {
     $this->service = $service;
@@ -51,7 +50,10 @@ class MusicSearchController extends ControllerBase
   }
 
   /**
+   * Create container function
+   * Dependency Injection of the music_search services
    * {@inheritdoc}
+   * @return containers of the music_search services
    */
   public static function create(ContainerInterface $container)
   {
@@ -63,36 +65,35 @@ class MusicSearchController extends ControllerBase
   }
 
   /**
-   * @param string $query
-   * @param string[] $types
-   * @return array
+   * The main musicSearch function
+   * @return array of the theme, the attributes and the forms.
    */
   public function musicSearch()
   {
+    // Create a request and a session
     $request = \Drupal::request();
     $session = $request->getSession();
 
+    // initialize the search results
     $searchResults = null;
 
+    // get a search query and search types
     $query = $session->get('search_query');
     $types = $session->get('search_types');
 
+    // store search parameters in session
     if ($request->getMethod() == 'POST') {
-      # $types = $request->request->get('types');
       $session->set('search_query', $request->request->get('q'));
       if ($request->request->get('types')) {
         $session->set('search_types', $request->request->get('types'));
       }
     } else if ($query && $types) {
       $uri = Url::fromRoute('music_search.search')->toString();
-      # $searchResults = $this->service->search($query, $types);
     }
 
+    // generate forms
     $searchForm = \Drupal::formbuilder()->getForm($this->searchForm);
     $listForm = \Drupal::formbuilder()->getForm($this->listForm);
-
-    $session->remove('search_query');
-    # $session->remove('search_types');
 
     return [
       '#theme' => array('container'),
@@ -100,8 +101,6 @@ class MusicSearchController extends ControllerBase
       '#children' => array(
         $searchForm,
         $listForm,
-        #$searchResults ? reset($searchResults['spotify']) : null,
-        #$searchResults ? reset($searchResults['discogs']) : null,
       )
     ];
   }
