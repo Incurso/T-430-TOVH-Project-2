@@ -180,8 +180,8 @@ class MusicSearchArtistForm extends FormBase {
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $request = \Drupal::request();
-    $artistByDiscogsID = null;
-    $artistBySpotifyID = null;
+    $artistByDiscogsID = [];
+    $artistBySpotifyID = [];
 
     $discogs_id = $request->query->get('discogs_id');
     $spotify_id = $request->query->get('spotify_id');
@@ -197,7 +197,6 @@ class MusicSearchArtistForm extends FormBase {
       'field_spotify_id' => $spotify_id,
       'field_desc' => $artist[$formValues['description']]['description'],
       'field_website' => $artist[$formValues['website']]['website'],
-      //'field_photos' => [],
     ];
 
     // Define entityTypeManager so we can look for entitys
@@ -209,8 +208,6 @@ class MusicSearchArtistForm extends FormBase {
         ->condition('field_discogs_id', $discogs_id);
 
       $artistByDiscogsID = $query->execute();
-      $asdf = \Drupal::entityTypeManager()->getStorage('node')->load(1);
-      $qwerty = \Drupal\media\Entity\Media::load(24);
     }
 
     if ($spotify_id) {
@@ -265,74 +262,5 @@ class MusicSearchArtistForm extends FormBase {
       // We found multiple entities
       // TODO: throw error
     }
-
-    /*
-    if ($artistByDiscogsID === $artistBySpotifyID) {
-      // Got the same output from both queries, lets check what we need to do.
-      switch(sizeof($artistByDiscogsID)) {
-        case 0: // Found no artis
-          // TODO: add artist
-          $node = \Drupal::entityTypeManager()->getStorage('node')->create($values);
-          $node->save();
-          $id = $node->id();
-          break;
-        case 1: // Found one artist
-          // TODO: update artist
-          $entity = \Drupal::entityTypeManager()->getStorage('node')->load(reset($artistByDiscogsID));
-          foreach ($values as $key => $value) {
-            $entity->$key = $value;
-          }
-          $entity->save();
-          break;
-        default: // Found multiple artists
-          // TODO: erm... display error?
-      }
-    } else {
-      // Got different outputs from the queries, at least that means we found something.
-      switch (sizeof($artistByDiscogsID)) {
-        case 0: // Did not find any artist by discogs_id
-          switch (sizeof($artistBySpotifyID)) {
-            case 1: // Found one artist by spotify_id
-            // TODO: update artist
-            default: // Found multiple artists by spotify_id
-            // TODO: erm... display error?
-          }
-          break;
-        case 1: // Found one artist by discogs_id
-          // TODO: update artist
-          break;
-        default: // Found multiple artists by discogs_id
-          // TODO: erm... display error?
-      }
-    }
-    */
-
-    /*
-    $request = \Drupal::request();
-    $id = $request->query->get('id');
-
-    $artist = $this->service->getArtist($id);
-
-    $test = \Drupal::entityTypeManager()->getStorage('node')->getQuery();
-    $test
-      ->condition('type', 'artist')
-      ->condition('title', $artist['name'])
-      ->condition('status', TRUE);
-    $ids = $test->execute();
-
-    if ($ids) {
-      $asdf = \Drupal::entityTypeManager()->getStorage('node')->load(array_pop($ids));
-    }
-
-    $values = [
-      'type' => 'artist',
-      'title' => $artist['name'],
-      'status' => TRUE,
-    ];
-    $node = \Drupal::entityTypeManager()->getStorage('node')->create($values);
-    $node->save();
-    */
- }
-
-
+  }
 }
