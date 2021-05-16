@@ -19,6 +19,26 @@ class MusicSearchAlbumForm extends FormBase {
    */
   protected $service;
 
+  /**
+   * @param $field
+   * @param $required
+   * @param $multi
+   * @return array
+   */
+  private function getAlbumTableselect ($field, $required, $multi) {
+    return [
+      '#type' => 'tableselect',
+      '#caption' => $this->t(ucfirst($field) . ($multi ? 's' : '')), # Add s if we are using multiselect
+      '#required' => $required,
+      '#multiple' => $multi,
+      '#header' => [
+        'source' => $this->t('Source'),
+        $field => $this->t(ucfirst($field)),
+      ],
+      '#options' => [],
+    ];
+  }
+
   public function __construct(MusicSearchService $service) {
     $this->service = $service;
   }
@@ -127,20 +147,11 @@ class MusicSearchAlbumForm extends FormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
     $request = \Drupal::request();
-    $session = $request->getSession();
     $discogs_id = $request->query->get('discogs_id');
     $spotify_id = $request->query->get('spotify_id');
 
-    /**
-     * Get albums from the web api (discogs or spotify)
-     */
+    // Get albums from the web api (discogs or spotify)
     $album = $this->service->getAlbum($spotify_id, $discogs_id);
-
-    $query = $session->get('search_query');
-    $types = $session->get('search_types');
-
-    $form['#method'] = 'post';
-    //$form['#action'] = Url::fromRoute('music_search.search')->toString();
 
     $form['title'] = [
       '#type' => 'textfield',
@@ -162,7 +173,44 @@ class MusicSearchAlbumForm extends FormBase {
       '#description' => $this->t('Please provide the discogs id'),
       '#default_value' => $discogs_id
     ];
-/*
+
+    // Generate tableselects
+    $form['title'] = $this->getAlbumTableselect('title', TRUE, FALSE);
+    $form['year'] = $this->getAlbumTableselect('year', FALSE, FALSE);
+    $form['label'] = $this->getAlbumTableselect('label', FALSE, FALSE);
+    $form['genres'] = $this->getAlbumTableselect('genre', FALSE, TRUE);
+    $form['description'] = $this->getAlbumTableselect('description', FALSE, FALSE);
+    $form['images'] = $this->getAlbumTableselect('image', FALSE, TRUE);
+
+    // Populate tableselects with values
+    foreach ($album as $serviceName => $service) {
+      $form['title']['#options'][$serviceName] = ['source' => $serviceName, 'title' => $service['title']];
+      $form['year']['#options'][$serviceName] = ['source' => $serviceName, 'year' => $service['year']];
+      $form['label']['#options'][$serviceName] = ['source' => $serviceName, 'label' => $service['label']];
+      $form['description']['#options'][$serviceName] = ['source' => $serviceName, 'description' => $service['description']];
+      //$form['genres']['#options'][$serviceName] = ['source' => $serviceName, 'genre' => $service['genre']];
+
+      foreach ($service['genres'] as $genre) {
+        $form['genres']['#options'][$genre] = [
+          'source' => $serviceName,
+          'genre' => $genre,
+        ];
+      }
+
+      foreach ($service['images'] as $image) {
+        $form['images']['#options'][$image['url']] = [
+          'source' => $serviceName,
+          'image' => [
+            'data' => [
+              '#theme' => 'image',
+              '#width' => '150',
+              '#uri' => $image['url']
+            ]
+          ]
+        ];
+      }
+    }
+    /*
     $form['genre'] = [
       '#type' => 'textfield',
       '#title' => $this->t('genre'),
