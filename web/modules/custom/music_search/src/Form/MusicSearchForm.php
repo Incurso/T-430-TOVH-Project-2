@@ -7,11 +7,13 @@ use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 
 /**
- * search form for the main music search
+ * Class MusicSearchForm
+ * @package Drupal\music_search\Form
  */
 class MusicSearchForm extends FormBase {
   /**
-   * {@inheritdoc}
+   * Function getEditableConfigNames
+   * @return string[] returns the config names
    */
   protected function getEditableConfigNames() {
     return [
@@ -20,14 +22,19 @@ class MusicSearchForm extends FormBase {
   }
 
   /**
-   * {@inheritdoc}
+   * Function getFormId
+   * @return string returns name of the form
    */
   public function getFormId() {
     return 'music_search_form';
   }
 
   /**
-   * {@inheritdoc}
+   * Function buildForm
+   * to build the configuration form
+   * @param array $form passes in the form data
+   * @param FormStateInterface $form_state passes in the form state
+   * @return array returns the form
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
     $request = \Drupal::request();
@@ -62,9 +69,6 @@ class MusicSearchForm extends FormBase {
     return $form; # parent::buildForm($form, $form_state);
   }
 
-  /**
-   * {@inheritdoc}
-   */
   public function validateForm(array &$form, FormStateInterface $form_state) {
     $client_id = $form_state->getValue('artist_name');
     if(strlen($client_id) > 32) {
@@ -74,9 +78,6 @@ class MusicSearchForm extends FormBase {
     parent::validateForm($form, $form_state);
   }
 
-  /**
-   * {@inheritdoc}
-   */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     /*
     $this->config('music_search.settings')
