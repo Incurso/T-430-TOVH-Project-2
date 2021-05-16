@@ -217,8 +217,8 @@ class MusicSearchSpotifyService {
       'id' => $response['id'],
       'name' => $response['name'],
       'images' => $images,
-      'description' => '',
-      'website' => ''
+      'description' => null,
+      'website' => null
     );
 
     return $returnData;
